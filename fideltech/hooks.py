@@ -46,6 +46,15 @@ app_license = "mit"
 doctype_js = {
     "Timesheet": "public/js/timesheet_custom.js"
 }
+override_doctype_class = {
+    "Timesheet": "fideltech.overrides.timesheet_override.CustomTimesheet"
+}
+
+doc_events = {
+    "Timesheet": {
+        "on_update": "fideltech.fideltech.doctype.timesheet.timesheet.on_timesheet_approve",
+    }
+}
 
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

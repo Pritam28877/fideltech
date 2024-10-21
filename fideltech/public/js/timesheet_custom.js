@@ -157,3 +157,17 @@ var calculate_time_and_amount = function (frm) {
     frm.set_value("custom_total_overtime_amount_135", custom_total_overtime_amount_135_amount );
     frm.set_value("custom_total_bill_amount", custom_total_ragular_hours_amount +  custom_total_overtime_amount_125_amount +custom_total_overtime_amount_135_amount );
 };
+
+
+frappe.listview_settings['Timesheet'] = {
+    onload: function(listview) {
+        // Ensure Delete button is available for Administrator in List View
+        if (frappe.user.has_role('Administrator')) {
+            listview.page.add_action_item(__('Delete'), function() {
+                listview.call_for_selected_items('frappe.desk.reportview.delete', {
+                    doctype: 'Timesheet'
+                });
+            });
+        }
+    }
+};
