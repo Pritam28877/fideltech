@@ -45,6 +45,7 @@ frappe.ui.form.on("Timesheet", {
                     "custom_overtime_hours_135": 0.00,  
                     "custom_sick": 0.00,  
                     "custom_total": customTotal,  
+                    "hours": customTotal
                 });
 
                 start.setDate(start.getDate() + 1);  
@@ -129,7 +130,7 @@ var calculate_time_and_amount = function (frm) {
     let custom_total_overtime_amount_135_amount = 0
     let custom_total_ragular_hours_amount = 0
     let rate = frm.doc.custom_employee_rate_
-    console.log(rate,"yy")
+
 	for (var i = 0; i < tl.length; i++) {
 		if (tl[i].custom_total) {
 			total_working_hr += tl[i].custom_total;

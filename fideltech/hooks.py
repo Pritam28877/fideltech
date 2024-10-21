@@ -56,6 +56,15 @@ doc_events = {
     }
 }
 
+# scheduler_events = {
+#     "cron": {
+#         "0 0 * * *": [  
+#             "fideltech.cron.employee_status.check_employee_contract_status"
+#         ],
+#     },
+# }
+
+
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
