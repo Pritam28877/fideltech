@@ -63,6 +63,15 @@ doc_events = {
 #         ],
 #     },
 # }
+fixtures = [
+    {"dt": "Workflow",},
+    {"dt": "Workflow State",},
+    {"dt": "Workflow Action Master"},
+    # {"dt": "Role", "filters": [["name", "in", ["Team Member", "Team Manager"]]]},
+    # {"dt": "Custom DocPerm", "filters": [["parent", "in", ["Task"]]]},
+    # {"dt": "Dashboard", "filters": [["name", "in", ["Team Tasks Overview"]]]},
+    # {"dt": "Dashboard Chart", "filters": [["name", "in", ["Tasks per Team", "Task Status Distribution"]]]}
+]
 
 
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}

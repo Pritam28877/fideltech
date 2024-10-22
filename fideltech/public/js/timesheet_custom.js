@@ -147,6 +147,7 @@ frappe.ui.form.on("Timesheet Detail", {
     custom_leave_type: function (frm, cdt, cdn) {
         // Recalculate hours if leave type is changed
         calculate_hours(frm, cdt, cdn);
+        calculate_time_and_amount(frm);
     }
 });
 
@@ -211,6 +212,7 @@ var calculate_time_and_amount = function (frm) {
 				total_billing_hr += tl[i].billing_hours;
 			}
 		}
+        console.log(custom_total_sick_hours)
         
 	}
     custom_total_ragular_hours_amount =  custom_total_ragular_hours * rate;
@@ -222,7 +224,7 @@ var calculate_time_and_amount = function (frm) {
     frm.set_value("custom_total_ragular_hours_amount", custom_total_ragular_hours_amount );
     frm.set_value("custom_total_overtime_amount_125", custom_total_overtime_amount_125_amount );
     frm.set_value("custom_total_overtime_amount_135", custom_total_overtime_amount_135_amount );
-    frm.set_value("custom_total_sick_amount", custom_total_sick_amount );
+    frm.set_value("custom_total_sick_amount1", custom_total_sick_amount );
     frm.set_value("custom_total_bill_amount", custom_total_ragular_hours_amount +  custom_total_overtime_amount_125_amount +custom_total_overtime_amount_135_amount + custom_total_sick_amount );
 };
 

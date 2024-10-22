@@ -28,6 +28,7 @@ def create_invoice_for_timesheet(timesheet):
         invoice.timesheet = timesheet.name
         invoice.employee_name = timesheet.employee_name  # Assuming custom field for employee
         invoice.currency = timesheet.currency
+        tax_amount = timesheet.custom_total_bill_amount * 0.10
 
         # Get default income account for the company
         income_account = frappe.get_value("Company", timesheet.company, "default_income_account")
@@ -41,7 +42,9 @@ def create_invoice_for_timesheet(timesheet):
             "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
             "income_account": income_account,  # Set valid income account
-            "amount": timesheet.custom_total_bill_amount  # Total bill amount
+            "amount": timesheet.custom_total_bill_amount,
+            "custom_tax_amount": tax_amount,
+            "custom_grand_total_1": timesheet.custom_total_bill_amount + tax_amount
         })
 
         # Insert the invoice
