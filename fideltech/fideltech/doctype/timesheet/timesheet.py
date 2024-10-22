@@ -1,4 +1,5 @@
 import frappe
+# from frappe.utils import get_holiday_list
 
 def on_timesheet_approve(doc, method):
     frappe.logger("t1").info(f"Workflow state: {doc}")
@@ -53,3 +54,24 @@ def create_invoice_for_timesheet(timesheet):
         # Log the error if invoice creation fails
         frappe.logger('timesheet').exception(e)
         frappe.msgprint(f"An error occurred while inserting the invoice: {str(e)}")
+
+
+
+@frappe.whitelist(allow_guest=True)
+def get_holidays(holiday_list_name):
+    """
+    Fetches holidays from the given holiday list.
+    :param holiday_list_name: Name of the holiday list
+    :return: List of holiday dates
+    """
+    if not holiday_list_name:
+        return []
+
+    # Fetch the holiday list document
+    holiday_list = frappe.get_doc("Holiday List", holiday_list_name)
+
+    # Extract holiday dates from the holidays child table
+    holiday_dates = [holiday.holiday_date for holiday in holiday_list.holidays]
+
+    return holiday_dates
+
