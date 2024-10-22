@@ -130,51 +130,53 @@ function isWeekend(date) {
 }
 
 
+// Timesheet Detail logic for updating hours when fields change
 frappe.ui.form.on("Timesheet Detail", {
-
-	custom_regular_hours: function (frm, cdt, cdn) {
-		var child = locals[cdt][cdn];
-
-		if (frm._setting_hours) return;
-
-		var hours = child.custom_regular_hours + child.custom_overtime_hours_125 + child.custom_overtime_hours_135 +child.custom_sick ;
-		frappe.model.set_value(cdt, cdn, "custom_total", hours);
-		frappe.model.set_value(cdt, cdn, "hours", hours);
-
-        calculate_time_and_amount(frm);
-	},
-
+    custom_regular_hours: function (frm, cdt, cdn) {
+        calculate_hours(frm, cdt, cdn);
+    },
     custom_overtime_hours_125: function (frm, cdt, cdn) {
-		var child = locals[cdt][cdn];
-
-		if (frm._setting_hours) return;
-
-		var hours = child.custom_regular_hours + child.custom_overtime_hours_125 + child.custom_overtime_hours_135 +child.custom_sick ;
-		frappe.model.set_value(cdt, cdn, "custom_total", hours);
-		frappe.model.set_value(cdt, cdn, "hours", hours);
-
-        calculate_time_and_amount(frm);
-	},
-    
+        calculate_hours(frm, cdt, cdn);
+    },
     custom_overtime_hours_135: function (frm, cdt, cdn) {
-		var child = locals[cdt][cdn];
-
-		if (frm._setting_hours) return;
-
-		var hours = child.custom_regular_hours + child.custom_overtime_hours_125 + child.custom_overtime_hours_135 + child.custom_sick;
-		frappe.model.set_value(cdt, cdn, "custom_total", hours);
-		frappe.model.set_value(cdt, cdn, "hours", hours);
-
-        
+        calculate_hours(frm, cdt, cdn);
+    },
+    custom_total: function (frm, cdt, cdn) {
         calculate_time_and_amount(frm);
-	},
-
-    custom_total: function (frm, cdt, cdn) {        
-        calculate_time_and_amount(frm);
+    },
+    custom_leave_type: function (frm, cdt, cdn) {
+        // Recalculate hours if leave type is changed
+        calculate_hours(frm, cdt, cdn);
     }
-
-
 });
+
+// Function to calculate hours and update the totals
+function calculate_hours(frm, cdt, cdn) {
+    var child = locals[cdt][cdn];
+
+    if (frm._setting_hours) return;
+
+    // Check the custom_leave_type field
+    if (child.custom_leave_type === "Paid") {
+        // Set regular hours to 0 and sick leave to 8
+        frappe.model.set_value(cdt, cdn, "custom_regular_hours", 0.00);
+        frappe.model.set_value(cdt, cdn, "custom_sick", 8.00);
+    }
+        // Check the custom_leave_type field
+        if (child.custom_leave_type === "Unpaid") {
+            // Set regular hours to 0 and sick leave to 8
+            frappe.model.set_value(cdt, cdn, "custom_regular_hours", 0.00);
+            frappe.model.set_value(cdt, cdn, "custom_sick", 0.00);
+        }
+
+    // Calculate total hours
+    var hours = child.custom_regular_hours + child.custom_overtime_hours_125 + child.custom_overtime_hours_135 + child.custom_sick;
+    frappe.model.set_value(cdt, cdn, "custom_total", hours);
+    frappe.model.set_value(cdt, cdn, "hours", hours);
+
+    calculate_time_and_amount(frm);
+}
+
 
 
 var calculate_time_and_amount = function (frm) {
