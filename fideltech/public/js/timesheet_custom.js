@@ -17,6 +17,24 @@ frappe.ui.form.on("Timesheet", {
             console.log("This timesheet is not new.");
         }
     },
+    refresh: function(frm) {
+        if (frm.is_new()) {
+            console.log("This is a new timesheet");
+            frm.clear_table("time_logs");
+
+            // Set the start and end date for the current month
+            let currentDate = new Date();
+            let firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            let lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            let start = new Date(firstDay);
+            let end = new Date(lastDay);
+
+            // Populate time_logs based on weekends and holidays
+            populateTimeLogs(frm, start, end);
+        } else {
+            console.log("This timesheet is not new.");
+        }
+    },
 
     custom_employee_rate_: function(frm, cdt, cdn) {
         calculate_time_and_amount(frm);
@@ -58,16 +76,29 @@ function fetchHolidays(holidayList, callback) {
         }
     });
 }
+const japaneseDaysMap = new Map([
+    [0, "日曜日"],  // Sunday
+    [1, "月曜日"],  // Monday
+    [2, "火曜日"],  // Tuesday
+    [3, "水曜日"],  // Wednesday
+    [4, "木曜日"],  // Thursday
+    [5, "金曜日"],  // Friday
+    [6, "土曜日"]   // Saturday
+]);
+
+function getJapaneseDayName(date) {
+    return japaneseDaysMap.get(date.getDay()); // Get the day name in Japanese using the Map
+}
 
 // Function to populate time logs with weekends and holidays
 function populateTimeLogs(frm, start, end) {
     while (start <= end) {
-        let dayName = getDayName(start);
+        let dayName = getJapaneseDayName(start); // Get the day name in Japanese
         let hours = isWeekend(start) ? 0.00 : 8.00;
 
         frm.add_child("time_logs", {
-            "custom_date": formatDate(start),  
-            "custom_day": dayName,  
+            "custom_date": formatDate(start),  // Use Japanese format for date
+            "custom_day": dayName,                     // Use Japanese day name
             "custom_regular_hours": hours,  
             "custom_overtime_hours_125": 0.00,  
             "custom_overtime_hours_135": 0.00,  
@@ -83,10 +114,12 @@ function populateTimeLogs(frm, start, end) {
     calculate_time_and_amount(frm);
 }
 
+
+
 // Function to populate time logs with holiday consideration
 function populateTimeLogsWithHolidays(frm, start, end, holidayDates) {
     while (start <= end) {
-        let dayName = getDayName(start);
+        let dayName = getJapaneseDayName(start); // Get the day name in Japanese
         let formattedDate = formatDate(start);
         
         // Set hours based on weekend or holiday
@@ -130,7 +163,6 @@ function isWeekend(date) {
 }
 
 
-// Timesheet Detail logic for updating hours when fields change
 frappe.ui.form.on("Timesheet Detail", {
     custom_regular_hours: function (frm, cdt, cdn) {
         calculate_hours(frm, cdt, cdn);
@@ -141,13 +173,9 @@ frappe.ui.form.on("Timesheet Detail", {
     custom_overtime_hours_135: function (frm, cdt, cdn) {
         calculate_hours(frm, cdt, cdn);
     },
-    custom_total: function (frm, cdt, cdn) {
-        calculate_time_and_amount(frm);
-    },
     custom_leave_type: function (frm, cdt, cdn) {
-        // Recalculate hours if leave type is changed
+        // Recalculate hours and amounts when leave type is changed
         calculate_hours(frm, cdt, cdn);
-        calculate_time_and_amount(frm);
     }
 });
 
@@ -155,26 +183,29 @@ frappe.ui.form.on("Timesheet Detail", {
 function calculate_hours(frm, cdt, cdn) {
     var child = locals[cdt][cdn];
 
-    if (frm._setting_hours) return;
+    if (frm._setting_hours) return; // Prevents recursive updates
 
-    // Check the custom_leave_type field
+    // Check the custom_leave_type field and adjust hours accordingly
     if (child.custom_leave_type === "Paid") {
-        // Set regular hours to 0 and sick leave to 8
+        // Set regular hours to 0 and sick leave to 8 hours
         frappe.model.set_value(cdt, cdn, "custom_regular_hours", 0.00);
         frappe.model.set_value(cdt, cdn, "custom_sick", 8.00);
+    } else if (child.custom_leave_type === "Unpaid") {
+        // Set both regular hours and sick leave to 0 for Unpaid leave
+        frappe.model.set_value(cdt, cdn, "custom_regular_hours", 0.00);
+        frappe.model.set_value(cdt, cdn, "custom_sick", 0.00);
     }
-        // Check the custom_leave_type field
-        if (child.custom_leave_type === "Unpaid") {
-            // Set regular hours to 0 and sick leave to 8
-            frappe.model.set_value(cdt, cdn, "custom_regular_hours", 0.00);
-            frappe.model.set_value(cdt, cdn, "custom_sick", 0.00);
-        }
 
     // Calculate total hours
-    var hours = child.custom_regular_hours + child.custom_overtime_hours_125 + child.custom_overtime_hours_135 + child.custom_sick;
-    frappe.model.set_value(cdt, cdn, "custom_total", hours);
-    frappe.model.set_value(cdt, cdn, "hours", hours);
+    var total_hours = (child.custom_regular_hours || 0) + 
+                      (child.custom_overtime_hours_125 || 0) + 
+                      (child.custom_overtime_hours_135 || 0) + 
+                      (child.custom_sick || 0);
+    
+    frappe.model.set_value(cdt, cdn, "custom_total", total_hours);
+    frappe.model.set_value(cdt, cdn, "hours", total_hours);
 
+    // Update time and amount calculations
     calculate_time_and_amount(frm);
 }
 
