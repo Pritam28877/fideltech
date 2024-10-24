@@ -33,6 +33,8 @@ def create_invoice_for_timesheet(timesheet):
         invoice.currency = timesheet.currency
         invoice.custom_tax_amount = tax_amount
         invoice.custom_grand_total_1= timesheet.custom_total_bill_amount + tax_amount
+        total_amount_words = custom_total_bill_amount + tax_amount
+        invoive.custom_in_words_1 = frappe.utils.money_in_words(total_amount_words)
 
         # Get default income account for the company
         income_account = frappe.get_value("Company", timesheet.company, "default_income_account")
