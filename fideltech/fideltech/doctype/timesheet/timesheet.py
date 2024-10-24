@@ -24,6 +24,7 @@ def create_invoice_for_timesheet(timesheet):
         if not timesheet.custom_customer_name:
             frappe.throw("Customer is missing in Timesheet")
         invoice.customer = timesheet.custom_customer_name
+        invoice.custom_timesheet = timesheet.name
         
         tax_amount = timesheet.custom_total_bill_amount * 0.10
         invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1);
