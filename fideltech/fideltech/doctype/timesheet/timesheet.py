@@ -35,6 +35,8 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_grand_total_1= timesheet.custom_total_bill_amount + tax_amount
         total_amount_words = timesheet.custom_total_bill_amount + tax_amount
         invoice.custom_in_words_1 = frappe.utils.money_in_words(total_amount_words)
+        overtime_hours_125 = float(timesheet.custom_total_overtime_hours_125 or 0)
+        overtime_hours_135 = float(timesheet.custom_total_overtime_hours_135 or 0)
 
         # Get default income account for the company
         income_account = frappe.get_value("Company", timesheet.company, "default_income_account")
@@ -48,8 +50,17 @@ def create_invoice_for_timesheet(timesheet):
             "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
             "income_account": income_account,  # Set valid income account
-            "amount": timesheet.custom_total_bill_amount,
+            "amount": timesheet.custom_total_ragular_hours_amount,
         })
+        if  overtime_hours_125 > 0 or overtime_hours_135 > 0:
+            invoice.append("items", {
+            "item_name": timesheet.employee_name,  # Employee name as item name
+            "qty": overtime_hours_135 + overtime_hours_135,          # Total hours worked
+            "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
+            "description": timesheet.employee_name,  # Employee name as description
+            "income_account": income_account,  # Set valid income account
+            "amount": timesheet.custom_total_overtime_amount_125 + timesheet.custom_total_overtime_amount_135,
+            })
 
         # Insert the invoice
         invoice.insert()

@@ -5,3 +5,5 @@ class CustomTimesheet(Timesheet):
         pass
         # Overriding the original method to skip validate_mandatory_fields
         # self.update_task_and_project()
+    def validate_overlap(self, data):
+        pass

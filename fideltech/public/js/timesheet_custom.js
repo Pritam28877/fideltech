@@ -306,6 +306,8 @@ var calculate_time_and_amount = function (frm) {
     frm.set_value("total_hours", total_working_hr);
     frm.set_value("custom_total_ragular_hours_amount", custom_total_regular_hours);
     frm.set_value("custom_approx_total_regular_hours_amount", normal_pay);
+    frm.set_value("custom_total_overtime_hours_125", custom_total_overtime_hours_125);
+    frm.set_value("custom_total_overtime_hours_135", custom_total_overtime_hours_135);    
     frm.set_value("custom_total_overtime_amount_125", custom_total_overtime_amount_125);
     frm.set_value("custom_total_overtime_amount_135", custom_total_overtime_amount_135);
     frm.set_value("custom_total_sick_amount1", custom_total_sick_hours * (rate / daily_hours));
