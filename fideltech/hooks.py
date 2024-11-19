@@ -56,13 +56,14 @@ doc_events = {
     }
 }
 
-# scheduler_events = {
-#     "cron": {
-#         "0 0 * * *": [  
-#             "fideltech.cron.employee_status.check_employee_contract_status"
-#         ],
-#     },
-# }
+scheduler_events = {
+    "cron": {
+        "0 0 * * *": [  
+            "fideltech.cron.employee_status.check_employee_contract_status",
+            "fideltech.cron.timesheetmail.remind_timesheet_submission"
+        ],
+    },
+}
 fixtures = [
     {"dt": "Workflow",},
     {"dt": "Workflow State",},
