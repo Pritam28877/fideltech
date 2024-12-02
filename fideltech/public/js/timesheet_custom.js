@@ -318,19 +318,20 @@ function performCalculations(frm, holidayDates) {
         unpaid_deduction = (custom_total_unpaid_leave_hours / daily_hours) * daily_rate;
     } else if (rate_type === "Monthly") {
         let monthly_rate = rate;
-        let hourly_rate = monthly_rate / monthly_fixed_hours;
-        ifmonthordailyrate = hourly_rate;
-        custom_total_sick_hours_pay = custom_total_sick_hours * hourly_rate;
-        holidaypay = holidaypay * hourly_rate;
+        let daily_rate = monthly_rate / 21.5; // Calculate daily rate based on 21.5 days
+        ifmonthordailyrate = daily_rate; // Use daily rate directly
+        custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate; // Sick hours pay
+        holidaypay = holidaypay * daily_rate; // Holiday pay
 
         // Adjust for underworked hours
-        if (custom_total_regular_hours < monthly_fixed_hours) {
-            normal_pay = custom_total_regular_hours * hourly_rate;
+        let worked_days = custom_total_regular_hours / daily_hours; // Calculate worked days
+        if (worked_days < monthly_days) {
+            normal_pay = worked_days * daily_rate; // Pay based on actual worked days
         } else {
             normal_pay = monthly_rate; // Full pay for completing fixed hours
         }
 
-        unpaid_deduction = custom_total_unpaid_leave_hours * hourly_rate;
+        unpaid_deduction = (custom_total_unpaid_leave_hours / daily_hours) * daily_rate; // Unpaid leave deduction
     }
 
     // Overtime calculations
@@ -345,9 +346,12 @@ function performCalculations(frm, holidayDates) {
         custom_total_overtime_amount_125 = (custom_total_overtime_hours_125 * (daily_rate * 1.25)) / daily_hours;
         custom_total_overtime_amount_135 = (custom_total_overtime_hours_135 * (daily_rate * 1.35)) / daily_hours;
     } else if (rate_type === "Monthly") {
-        let monthly_rate = rate;
-        custom_total_overtime_amount_125 = (custom_total_overtime_hours_125 * (monthly_rate * 1.25)) / (monthly_days * daily_hours);
-        custom_total_overtime_amount_135 = (custom_total_overtime_hours_135 * (monthly_rate * 1.35)) / (monthly_days * daily_hours);
+        let daily_rate = rate / 21.5; // Calculate daily rate from monthly rate
+
+        custom_total_overtime_amount_125 =
+            (custom_total_overtime_hours_125 / daily_hours) * daily_rate * 1.25; // Overtime (1.25x)
+        custom_total_overtime_amount_135 =
+            (custom_total_overtime_hours_135 / daily_hours) * daily_rate * 1.35; // Overtime (1.35x)    
     }
 
     // Total bill amount including overtime

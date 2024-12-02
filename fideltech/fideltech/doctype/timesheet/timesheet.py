@@ -53,9 +53,10 @@ def create_invoice_for_timesheet(timesheet):
         invoice.timesheet = timesheet.name
         invoice.employee_name = timesheet.employee_name  # Assuming custom field for employee
         invoice.currency = timesheet.currency
-        invoice.custom_tax_amount = tax_amount
-        invoice.custom_total1 = timesheet.custom_total_bill_amount
-        invoice.custom_grand_total_1 = timesheet.custom_total_bill_amount + tax_amount
+        invoice.custom_tax_amount = round(tax_amount, 2)
+        invoice.custom_total1 = round(timesheet.custom_total_bill_amount, 2)
+        invoice.custom_grand_total_1 = round(timesheet.custom_total_bill_amount + tax_amount, 2)
+
         total_amount_words = timesheet.custom_total_bill_amount + tax_amount
 
         # Use the international format for amount in words
