@@ -3,20 +3,31 @@ from num2words import num2words  # Ensure you install num2words using `pip insta
 
 def number_to_words_international(amount):
     """
-    Convert a number to words in the international format.
+    Convert a number to words in the international format without currency names.
 
     Args:
         amount (float): The number to convert into words.
 
     Returns:
-        str: The amount in words in international format.
+        str: The amount in words in international format, without currency names.
     """
     try:
         # Ensure the amount is rounded to two decimal places
         amount = round(amount, 2)
 
-        # Convert the amount to words using num2words
-        amount_in_words = num2words(amount, lang='en', to='currency').capitalize()
+        # Split the amount into whole and decimal parts
+        whole_part = int(amount)
+        decimal_part = int(round((amount - whole_part) * 100))
+
+        # Convert the whole part to words
+        whole_part_in_words = num2words(whole_part, lang='en', to='cardinal').capitalize()
+
+        # Convert the decimal part to words, if it exists
+        if decimal_part > 0:
+            decimal_part_in_words = num2words(decimal_part, lang='en', to='cardinal')
+            amount_in_words = f"JPY{whole_part_in_words} and {decimal_part_in_words}/100"
+        else:
+            amount_in_words = whole_part_in_words
 
         return amount_in_words + " only"
     except Exception as e:
@@ -30,7 +41,8 @@ def on_timesheet_approve(doc, method):
         try:
             create_invoice_for_timesheet(doc)
         except Exception as e:
-            pass  # Log or handle the exception if needed
+            frappe.logger('utils').exception(f"Error during invoice creation: {str(e)}")
+
 
 def create_invoice_for_timesheet(timesheet):
     # Check if an invoice already exists for the timesheet
@@ -49,7 +61,14 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_timesheet = timesheet.name
 
         tax_amount = timesheet.custom_total_bill_amount * 0.10
-        invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
+        # invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
+        # Calculate the last day of the next month
+        next_month_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
+        last_day_of_next_month = frappe.utils.get_last_day(next_month_date)
+
+        # Set the due date to the last day of the next month
+        invoice.due_date = last_day_of_next_month
+
         invoice.timesheet = timesheet.name
         invoice.employee_name = timesheet.employee_name  # Assuming custom field for employee
         invoice.currency = timesheet.currency
@@ -110,15 +129,22 @@ def create_invoice_for_timesheet(timesheet):
                 "custom_amount1": timesheet.custom_total_overtime_amount_125 + timesheet.custom_total_overtime_amount_135,
             })
         if timesheet.custom_total_unpaid_leave_hours > 0:
+            unpaid_leave_qty = timesheet.custom_total_unpaid_leave_hours
+            
+            # Convert hours to days if rate type is "Monthly" or "Daily"
+            if timesheet.custom_rate_type in ["Monthly", "Daily"]:
+                unpaid_leave_qty = unpaid_leave_qty / 8  # Convert hours to days
+
             invoice.append("items", {
                 "item_name": timesheet.employee_name,  # Employee name as item name
-                "qty": timesheet.custom_total_unpaid_leave_hours,          # Total hours worked
-                "rate": timesheet.custom_monthordailyrate,  # Custom rate per hour
-                "description": "Unpaid Leave",  # Employee name as description
+                "qty": round(unpaid_leave_qty, 2),     # Total unpaid leave converted to days
+                "rate": timesheet.custom_monthordailyrate,  # Custom rate per day
+                "description": "Unpaid Leave",  # Description
                 "income_account": income_account,  # Set valid income account
-                "custom_type": "Hourly",
+                "custom_type": "Day" if timesheet.custom_rate_type in ["Daily", "Monthly"] else "Hourly",
                 "custom_amount1": timesheet.custom_total_unpaid_deduction,
             })
+
 
         # Insert the invoice
         invoice.insert()
