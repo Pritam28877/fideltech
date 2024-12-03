@@ -103,15 +103,16 @@ def create_invoice_for_timesheet(timesheet):
             ["custom_consultrator_name_1", "custom_consultrator_id_1", "custom_service_period"],
             as_dict=True
         )
+        # employee_id = employee_data.get("custom_consultrator_id_1")
 
         invoice.custom_consultrator_name = employee_data.get("custom_consultrator_name_1")
         invoice.custom_consultrator_id = employee_data.get("custom_consultrator_id_1")
         invoice.custom_service_period = employee_data.get("custom_service_period")
 
         invoice.append("items", {
-            "item_name": timesheet.employee_name,  # Employee name as item name
+            "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
             "qty": qty,                            # Adjusted quantity based on rate type
-            "rate": timesheet.custom_monthordailyrate,  # Custom rate per hour
+            "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
             "income_account": income_account,        # Set valid income account
             "custom_type": timesheet.custom_rate_type,
@@ -120,7 +121,7 @@ def create_invoice_for_timesheet(timesheet):
 
         if overtime_hours_125 > 0 or overtime_hours_135 > 0:
             invoice.append("items", {
-                "item_name": timesheet.employee_name,  # Employee name as item name
+                "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
                 "qty": overtime_hours_125 + overtime_hours_135,          # Total hours worked
                 "rate": timesheet.custom_monthordailyrate,  # Custom rate per hour
                 "description": "Overtime",  # Employee name as description
@@ -136,7 +137,7 @@ def create_invoice_for_timesheet(timesheet):
                 unpaid_leave_qty = unpaid_leave_qty / 8  # Convert hours to days
 
             invoice.append("items", {
-                "item_name": timesheet.employee_name,  # Employee name as item name
+                "item_name": timesheet.employee_name +" "+ timesheet.employee,   # Employee name as item name
                 "qty": round(unpaid_leave_qty, 2),     # Total unpaid leave converted to days
                 "rate": timesheet.custom_monthordailyrate,  # Custom rate per day
                 "description": "Unpaid Leave",  # Description
