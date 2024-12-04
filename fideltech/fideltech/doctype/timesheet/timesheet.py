@@ -123,7 +123,7 @@ def create_invoice_for_timesheet(timesheet):
             invoice.append("items", {
                 "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
                 "qty": overtime_hours_125 + overtime_hours_135,          # Total hours worked
-                "rate": timesheet.custom_monthordailyrate,  # Custom rate per hour
+                "rate": timesheet.custom_overtimerate,  # Custom rate per hour
                 "description": "Overtime",  # Employee name as description
                 "income_account": income_account,  # Set valid income account
                 "custom_type": "Hourly",

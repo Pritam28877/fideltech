@@ -252,6 +252,7 @@ function performCalculations(frm, holidayDates) {
     let custom_total_unpaid_leave_days = 0;
     let custom_total_unpaid_leave_hours = 0;
     let ifmonthordailyrate = 0;
+    let custom_overtimerate = 0;
 
     let normal_pay = 0;
     let unpaid_deduction = 0;
@@ -347,6 +348,7 @@ function performCalculations(frm, holidayDates) {
         custom_total_overtime_amount_135 = (custom_total_overtime_hours_135 * (daily_rate * 1.35)) / daily_hours;
     } else if (rate_type === "Monthly") {
         let daily_rate = rate / 21.5; // Calculate daily rate from monthly rate
+        custom_overtimerate = daily_rate / daily_hours;
 
         custom_total_overtime_amount_125 =
             (custom_total_overtime_hours_125 / daily_hours) * daily_rate * 1.25; // Overtime (1.25x)
@@ -377,6 +379,7 @@ function performCalculations(frm, holidayDates) {
     frm.set_value("custom_total_sick_hours", custom_total_sick_hours);
     frm.set_value("custom_total_unpaid_deduction", unpaid_deduction);
     frm.set_value("custom_total_bill_amount", custom_total_bill_amount);
+    frm.set_value("custom_overtimerate", custom_overtimerate);
 };
 
 
