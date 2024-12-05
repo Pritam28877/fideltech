@@ -143,7 +143,7 @@ def create_invoice_for_timesheet(timesheet):
                 "description": "Unpaid Leave",  # Description
                 "income_account": income_account,  # Set valid income account
                 "custom_type": "Day" if timesheet.custom_rate_type in ["Daily", "Monthly"] else "Hourly",
-                "custom_amount1": timesheet.custom_total_unpaid_deduction,
+                "custom_amount1": -abs(float(timesheet.custom_total_unpaid_deduction)), 
             })
 
 
