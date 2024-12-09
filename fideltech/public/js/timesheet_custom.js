@@ -248,7 +248,7 @@ function performCalculations(frm, holidayDates) {
     let custom_total_regular_hours = 0;
     let custom_total_overtime_hours_125 = 0;
     let custom_total_overtime_hours_135 = 0;
-    let custom_total_sick_hours_pay= 0;
+    let custom_total_sick_hours_pay = 0;
     let custom_total_unpaid_leave_days = 0;
     let custom_total_unpaid_leave_hours = 0;
     let ifmonthordailyrate = 0;
@@ -257,113 +257,82 @@ function performCalculations(frm, holidayDates) {
     let normal_pay = 0;
     let unpaid_deduction = 0;
     let custom_total_bill_amount = 0;
+    let custom_monthordailyrate = 0
 
     let rate = frm.doc.custom_employee_rate_;
     let rate_type = frm.doc.custom_rate_type; // Hourly, Daily, Monthly
     let daily_hours = 8; // Standard working hours in a day
-    let monthly_fixed_hours = 0;
-    let monthly_days = 0;
+    let working_days_in_month = 21.5; // Average working days in a month
     let holidaypay = 0;
-
-    // Fetch holiday list from the form
-    // let holidayDates = frm.doc.custom_holiday_list || [];
-
-    // Calculate working days and hours dynamically for the month
-    let currentDate = new Date();
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth();
-    monthly_days = calculateWorkingDays(year, month);
-    monthly_fixed_hours = monthly_days * daily_hours;
 
     // Process time logs
     for (var i = 0; i < tl.length; i++) {
-        let formattedDate = tl[i].custom_date; // Ensure dates are formatted properly
+        let formattedDate = tl[i].custom_date; // Ensure proper date format
         let isHolidayOrWeekend = isWeekend(new Date(formattedDate)) || holidayDates.includes(formattedDate);
 
         if (tl[i].custom_leave_type === "Unpaid") {
             custom_total_unpaid_leave_days++;
             custom_total_unpaid_leave_hours += daily_hours; // Full day unpaid leave adds 8 hours
         } else {
-            // Accumulate hours
             total_working_hr += tl[i].custom_total;
             custom_total_regular_hours += tl[i].custom_regular_hours;
             custom_total_overtime_hours_125 += tl[i].custom_overtime_hours_125;
             custom_total_overtime_hours_135 += tl[i].custom_overtime_hours_135;
-            custom_total_sick_hours += tl[i].custom_sick; 
+            custom_total_sick_hours += tl[i].custom_sick;
 
             // Include holidays as regular working days for pay
             if (holidayDates.includes(formattedDate) && tl[i].custom_regular_hours === 0) {
                 holidaypay += daily_hours;
             }
+
             // Calculate unpaid leave hours only on working days
-            if (tl[i].custom_leave_type!== "Paid" && !isHolidayOrWeekend && tl[i].custom_regular_hours < daily_hours) {
-                custom_total_unpaid_leave_hours += (daily_hours - tl[i].custom_regular_hours);
+            if (
+                tl[i].custom_leave_type !== "Paid" &&
+                !isHolidayOrWeekend &&
+                tl[i].custom_regular_hours < daily_hours
+            ) {
+                custom_total_unpaid_leave_hours += daily_hours - tl[i].custom_regular_hours;
             }
         }
     }
 
-    // Calculate normal pay and deductions
-    if (rate_type === "Hourly") {
-        ifmonthordailyrate = rate;
-        normal_pay = custom_total_regular_hours * rate;
-        holidaypay = holidaypay * rate;
-        custom_total_sick_hours_pay = custom_total_sick_hours * rate;
-        unpaid_deduction = custom_total_unpaid_leave_hours * rate;
-    } else if (rate_type === "Daily") {
-        let daily_rate = rate;
-        ifmonthordailyrate = daily_rate/daily_hours;
-        let worked_days = custom_total_regular_hours / daily_hours;
-        normal_pay = worked_days * daily_rate;        
-        custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate;
-        holidaypay = holidaypay * daily_rate;
-        unpaid_deduction = (custom_total_unpaid_leave_hours / daily_hours) * daily_rate;
-    } else if (rate_type === "Monthly") {
-        let monthly_rate = rate;
-        let daily_rate = monthly_rate / 21.5; // Calculate daily rate based on 21.5 days
-        ifmonthordailyrate = daily_rate; // Use daily rate directly
-        custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate; // Sick hours pay
-        holidaypay = holidaypay * daily_rate; // Holiday pay
-
-        // Adjust for underworked hours
-        let worked_days = custom_total_regular_hours / daily_hours; // Calculate worked days
-        if (worked_days < monthly_days) {
-            normal_pay = worked_days * daily_rate; // Pay based on actual worked days
-        } else {
-            normal_pay = monthly_rate; // Full pay for completing fixed hours
-        }
-
-        unpaid_deduction = (custom_total_unpaid_leave_hours / daily_hours) * daily_rate; // Unpaid leave deduction
+    // Calculate rates based on type
+    let daily_rate = rate;
+    custom_monthordailyrate = daily_rate;
+    if (rate_type === "Monthly") {
+        daily_rate = rate / working_days_in_month; // Calculate daily rate from monthly rate
+        custom_monthordailyrate = daily_rate;
+    } else if (rate_type === "Hourly") {
+        daily_rate = rate * daily_hours; // Convert hourly rate to daily rate
+        custom_monthordailyrate = rate;
     }
+
+    // Calculate hourly rate
+    let hourly_rate = daily_rate / daily_hours;
+
+    // Calculate normal pay
+    let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
+    normal_pay = worked_days * daily_rate; // Regular pay for worked days
+
+    // Calculate holiday pay
+    holidaypay = holidaypay * daily_rate; // Convert holiday hours to pay
+
+    // Calculate sick hours pay
+    custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate; // Sick hours converted to pay
+
+    // Calculate unpaid leave deduction
+    unpaid_deduction = custom_total_unpaid_leave_hours * hourly_rate; // Deduct unpaid leave
 
     // Overtime calculations
-    let custom_total_overtime_amount_125 = 0;
-    let custom_total_overtime_amount_135 = 0;
+    let custom_total_overtime_amount_125 = custom_total_overtime_hours_125 * hourly_rate * 1.25; // Overtime at 1.25x
+    let custom_total_overtime_amount_135 = custom_total_overtime_hours_135 * hourly_rate * 1.35; // Overtime at 1.35x
 
-    if (rate_type === "Hourly") {
-        custom_total_overtime_amount_125 = custom_total_overtime_hours_125 * rate * 1.25;
-        custom_total_overtime_amount_135 = custom_total_overtime_hours_135 * rate * 1.35;
-    } else if (rate_type === "Daily") {
-        let daily_rate = rate;
-        custom_total_overtime_amount_125 = (custom_total_overtime_hours_125 * (daily_rate * 1.25)) / daily_hours;
-        custom_total_overtime_amount_135 = (custom_total_overtime_hours_135 * (daily_rate * 1.35)) / daily_hours;
-    } else if (rate_type === "Monthly") {
-        let daily_rate = rate / 21.5; // Calculate daily rate from monthly rate
-        custom_overtimerate = daily_rate / daily_hours;
-
-        custom_total_overtime_amount_125 =
-            (custom_total_overtime_hours_125 / daily_hours) * daily_rate * 1.25; // Overtime (1.25x)
-        custom_total_overtime_amount_135 =
-            (custom_total_overtime_hours_135 / daily_hours) * daily_rate * 1.35; // Overtime (1.35x)    
-    }
-
-    // Total bill amount including overtime
+    // Total bill amount
     custom_total_bill_amount =
         normal_pay +
         custom_total_overtime_amount_125 +
-        custom_total_sick_hours_pay +
-        holidaypay +
-        custom_total_overtime_amount_135 -
-        unpaid_deduction;
+        custom_total_overtime_amount_135 +
+        holidaypay ;
 
     // Update fields in the Timesheet
     frm.set_value("total_hours", total_working_hr);
@@ -374,13 +343,16 @@ function performCalculations(frm, holidayDates) {
     frm.set_value("custom_total_overtime_amount_125", custom_total_overtime_amount_125);
     frm.set_value("custom_total_overtime_amount_135", custom_total_overtime_amount_135);
     frm.set_value("custom_total_unpaid_leave_hours", custom_total_unpaid_leave_hours);
-    frm.set_value("custom_monthordailyrate", ifmonthordailyrate);
+    // frm.set_value("custom_monthordailyrate", ifmonthordailyrate);
     frm.set_value("custom_total_sick_amount1", custom_total_sick_hours_pay);
     frm.set_value("custom_total_sick_hours", custom_total_sick_hours);
     frm.set_value("custom_total_unpaid_deduction", unpaid_deduction);
+    frm.set_value("custom_monthordailyrate", custom_monthordailyrate);
     frm.set_value("custom_total_bill_amount", custom_total_bill_amount);
-    frm.set_value("custom_overtimerate", custom_overtimerate);
-};
+    frm.set_value("custom_overtimerate", hourly_rate * 1.35); // Calculate overtime rate
+    frm.set_value("custom_overtimerate_125", hourly_rate * 1.25); // Calculate overtime rate
+}
+
 
 
 // Helper function to calculate working days in a month

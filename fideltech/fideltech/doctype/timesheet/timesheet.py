@@ -25,7 +25,7 @@ def number_to_words_international(amount):
         # Convert the decimal part to words, if it exists
         if decimal_part > 0:
             decimal_part_in_words = num2words(decimal_part, lang='en', to='cardinal')
-            amount_in_words = f"JPY{whole_part_in_words} and {decimal_part_in_words}/100"
+            amount_in_words = f"JPY {whole_part_in_words} and {decimal_part_in_words}/100"
         else:
             amount_in_words = whole_part_in_words
 
@@ -108,6 +108,7 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_consultrator_name = employee_data.get("custom_consultrator_name_1")
         invoice.custom_consultrator_id = employee_data.get("custom_consultrator_id_1")
         invoice.custom_service_period = employee_data.get("custom_service_period")
+        total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
 
         invoice.append("items", {
             "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
@@ -116,18 +117,29 @@ def create_invoice_for_timesheet(timesheet):
             "description": timesheet.employee_name,  # Employee name as description
             "income_account": income_account,        # Set valid income account
             "custom_type": timesheet.custom_rate_type,
-            "custom_amount1": timesheet.custom_total_bill_amount,
+            "custom_amount1": total_aproximate_hours,
         })
 
-        if overtime_hours_125 > 0 or overtime_hours_135 > 0:
+        if overtime_hours_125 > 0:
             invoice.append("items", {
                 "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
-                "qty": overtime_hours_125 + overtime_hours_135,          # Total hours worked
-                "rate": timesheet.custom_overtimerate,  # Custom rate per hour
-                "description": "Overtime",  # Employee name as description
+                "qty": overtime_hours_125 ,          # Total hours worked
+                "rate": timesheet.custom_overtimerate_125,  # Custom rate per hour
+                "description": "Overtime 1.25" ,  # Employee name as description
                 "income_account": income_account,  # Set valid income account
                 "custom_type": "Hourly",
-                "custom_amount1": timesheet.custom_total_overtime_amount_125 + timesheet.custom_total_overtime_amount_135,
+                "custom_amount1": timesheet.custom_total_overtime_amount_125 ,
+            })
+
+        if overtime_hours_135 > 0 :
+            invoice.append("items", {
+                "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
+                "qty": overtime_hours_135 ,          # Total hours worked
+                "rate": timesheet.custom_overtimerate,  # Custom rate per hour
+                "description": "Overtime 1.35",  # Employee name as description
+                "income_account": income_account,  # Set valid income account
+                "custom_type": "Hourly",
+                "custom_amount1":  timesheet.custom_total_overtime_amount_135,
             })
         if timesheet.custom_total_unpaid_leave_hours > 0:
             unpaid_leave_qty = timesheet.custom_total_unpaid_leave_hours
