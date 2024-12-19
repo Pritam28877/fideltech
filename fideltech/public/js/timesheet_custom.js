@@ -328,6 +328,10 @@ function performCalculations(frm, holidayDates) {
     let custom_total_overtime_amount_135 = custom_total_overtime_hours_135 * hourly_rate * 1.35; // Overtime at 1.35x
 
     // Total bill amount
+    console.log("Total Bill Amount:", normal_pay );
+    console.log("Total 1 Amount:", custom_total_overtime_amount_125 );
+    console.log("Total 2 Amount:", custom_total_overtime_amount_135 );
+    console.log("Total 3 Amount:", holidaypay );
     custom_total_bill_amount =
         normal_pay +
         custom_total_overtime_amount_125 +
