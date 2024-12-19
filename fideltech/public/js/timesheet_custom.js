@@ -313,9 +313,9 @@ function performCalculations(frm, holidayDates) {
     // Calculate normal pay
     let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
     normal_pay = worked_days * daily_rate; // Regular pay for worked days
-
     // Calculate holiday pay
-    holidaypay = holidaypay * daily_rate; // Convert holiday hours to pay
+    // holidaypay = (holidaypay /daily_hours) * daily_rate; // Convert holiday hours to pay
+    // normal_pay = normal_pay - holidaypay;
 
     // Calculate sick hours pay
     custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate; // Sick hours converted to pay
@@ -335,8 +335,7 @@ function performCalculations(frm, holidayDates) {
     custom_total_bill_amount =
         normal_pay +
         custom_total_overtime_amount_125 +
-        custom_total_overtime_amount_135 +
-        holidaypay ;
+        custom_total_overtime_amount_135 ;
 
     // Update fields in the Timesheet
     frm.set_value("total_hours", total_working_hr);
