@@ -1,5 +1,6 @@
 import frappe
 from num2words import num2words  # Ensure you install num2words using `pip install num2words`
+from datetime import datetime, timedelta
 
 def number_to_words_international(amount):
     """
@@ -64,10 +65,12 @@ def create_invoice_for_timesheet(timesheet):
         # invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
         # Calculate the last day of the next month
         next_month_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
-        last_day_of_next_month = frappe.utils.get_last_day(next_month_date)
+        today = frappe.utils.nowdate()
 
+        # Get the last day of the month for the new date
+        plus_30_days_date = datetime.strptime(today, "%Y-%m-%d") + timedelta(days=30)
         # Set the due date to the last day of the next month
-        invoice.due_date = last_day_of_next_month
+        invoice.due_date = plus_30_days_date
 
         invoice.timesheet = timesheet.name
         invoice.employee_name = timesheet.employee_name  # Assuming custom field for employee
