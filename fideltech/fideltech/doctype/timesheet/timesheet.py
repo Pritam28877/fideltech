@@ -116,6 +116,17 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_service_period = employee_data.get("custom_service_period")
         invoice.custom_project_id = employee_data.get("custom_project_id")
         total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
+        custom_type = "Hour"
+        if (timesheet.custom_rate_type) {
+        if (timesheet.custom_rate_type === "Monthly") {
+            custom_type = "Month";
+        } else if (timesheet.custom_rate_type === "Daily") {
+            custom_type = "Day";
+        } else if (timesheet.custom_rate_type === "Hourly") {
+            custom_type = "Hour";
+        }
+}
+
 
         invoice.append("items", {
             "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
@@ -123,7 +134,7 @@ def create_invoice_for_timesheet(timesheet):
             "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
             "income_account": income_account,        # Set valid income account
-            "custom_type": timesheet.custom_rate_type,
+            "custom_type": custom_type,
             "custom_amount1": total_aproximate_hours,
         })
 
@@ -134,7 +145,7 @@ def create_invoice_for_timesheet(timesheet):
                 "rate": timesheet.custom_overtimerate_125,  # Custom rate per hour
                 "description": "Overtime 1.25" ,  # Employee name as description
                 "income_account": income_account,  # Set valid income account
-                "custom_type": "Hourly",
+                "custom_type": "Hour",
                 "custom_amount1": timesheet.custom_total_overtime_amount_125 ,
             })
 
@@ -145,7 +156,7 @@ def create_invoice_for_timesheet(timesheet):
                 "rate": timesheet.custom_overtimerate,  # Custom rate per hour
                 "description": "Overtime 1.35",  # Employee name as description
                 "income_account": income_account,  # Set valid income account
-                "custom_type": "Hourly",
+                "custom_type": "Hour",
                 "custom_amount1":  timesheet.custom_total_overtime_amount_135,
             })
         if timesheet.custom_total_unpaid_leave_hours > 0:
@@ -161,7 +172,7 @@ def create_invoice_for_timesheet(timesheet):
                 "rate": timesheet.custom_monthordailyrate,  # Custom rate per day
                 "description": "Unpaid Leave",  # Description
                 "income_account": income_account,  # Set valid income account
-                "custom_type": "Day" if timesheet.custom_rate_type in ["Daily", "Monthly"] else "Hourly",
+                "custom_type": "Day" if timesheet.custom_rate_type in ["Daily", "Monthly"] else "Hour",
                 "custom_amount1": -abs(float(timesheet.custom_total_unpaid_deduction)), 
             })
 
