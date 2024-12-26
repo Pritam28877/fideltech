@@ -118,7 +118,7 @@ def create_invoice_for_timesheet(timesheet):
         total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
 
         invoice.append("items", {
-            "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
+            "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
             "qty": qty,                            # Adjusted quantity based on rate type
             "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
@@ -129,7 +129,7 @@ def create_invoice_for_timesheet(timesheet):
 
         if overtime_hours_125 > 0:
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
                 "qty": overtime_hours_125 ,          # Total hours worked
                 "rate": timesheet.custom_overtimerate_125,  # Custom rate per hour
                 "description": "Overtime 1.25" ,  # Employee name as description
@@ -140,7 +140,7 @@ def create_invoice_for_timesheet(timesheet):
 
         if overtime_hours_135 > 0 :
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+ timesheet.employee,  # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
                 "qty": overtime_hours_135 ,          # Total hours worked
                 "rate": timesheet.custom_overtimerate,  # Custom rate per hour
                 "description": "Overtime 1.35",  # Employee name as description
@@ -156,7 +156,7 @@ def create_invoice_for_timesheet(timesheet):
                 unpaid_leave_qty = unpaid_leave_qty / 8  # Convert hours to days
 
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+ timesheet.employee,   # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
                 "qty": round(unpaid_leave_qty, 2),     # Total unpaid leave converted to days
                 "rate": timesheet.custom_monthordailyrate,  # Custom rate per day
                 "description": "Unpaid Leave",  # Description
