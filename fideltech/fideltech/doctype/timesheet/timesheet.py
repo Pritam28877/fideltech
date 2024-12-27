@@ -117,15 +117,14 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_project_id = employee_data.get("custom_project_id")
         total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
         custom_type = "Hour"
-        if (timesheet.custom_rate_type) {
-        if (timesheet.custom_rate_type === "Monthly") {
-            custom_type = "Month";
-        } else if (timesheet.custom_rate_type === "Daily") {
-            custom_type = "Day";
-        } else if (timesheet.custom_rate_type === "Hourly") {
-            custom_type = "Hour";
-        }
-}
+        
+        if timesheet.custom_rate_type == "Monthly":
+            custom_type = "Month"
+        elif timesheet.custom_rate_type == "Daily":
+            custom_type = "Day"
+        elif timesheet.custom_rate_type == "Hourly":
+            custom_type = "Hour"
+
 
 
         invoice.append("items", {
