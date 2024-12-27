@@ -60,6 +60,14 @@ def create_invoice_for_timesheet(timesheet):
             frappe.throw("Customer is missing in Timesheet")
         invoice.customer = timesheet.custom_customer_name
         invoice.custom_timesheet = timesheet.name
+        customer_data = frappe.db.get_value(
+        "Customer",
+        timesheet.custom_customer_name,
+        ["tax_id",  "custom_tax_no" ],
+        as_dict=True
+        )
+        invoice.tax_id = customer_data.get("tax_id")
+        invoice.custom_tax_no = customer_data.get("custom_tax_no")
 
         tax_amount = timesheet.custom_total_bill_amount * 0.10
         # invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
@@ -114,10 +122,10 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_consultrator_name = employee_data.get("employee_name")
         # invoice.custom_consultrator_id = timesheet.employee
         invoice.custom_service_period = employee_data.get("custom_service_period")
-        invoice.custom_project_id = employee_data.get("custom_project_id")
+        invoice.custom_project_name = employee_data.get("custom_project_id")
         total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
         custom_type = "Hour"
-        
+
         if timesheet.custom_rate_type == "Monthly":
             custom_type = "Month"
         elif timesheet.custom_rate_type == "Daily":
