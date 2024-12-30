@@ -63,11 +63,12 @@ def create_invoice_for_timesheet(timesheet):
         customer_data = frappe.db.get_value(
         "Customer",
         timesheet.custom_customer_name,
-        ["tax_id",  "custom_tax_no" ],
+        ["tax_id",  "custom_tax_no" ,"custom_attn"],
         as_dict=True
         )
         invoice.tax_id = customer_data.get("tax_id")
         invoice.custom_tax_no = customer_data.get("custom_tax_no")
+        invoice.custom_attn = customer_data.get("custom_attn")
 
         tax_amount = timesheet.custom_total_bill_amount * 0.10
         # invoice.due_date = frappe.utils.add_months(frappe.utils.nowdate(), 1)
