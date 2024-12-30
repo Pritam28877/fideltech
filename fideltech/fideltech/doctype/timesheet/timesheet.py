@@ -114,7 +114,7 @@ def create_invoice_for_timesheet(timesheet):
         employee_data = frappe.db.get_value(
             "Employee",
             timesheet.employee,
-            ["employee_name",  "custom_service_period" , "custom_project_id" , "custom_ref_id"],
+            ["employee_name",  "custom_service_period" , "custom_project_id" , "custom_ref_id" , "designation"],
             as_dict=True
         )
         # employee_id = employee_data.get("custom_consultrator_id_1")
@@ -123,6 +123,7 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_consultrator_id = employee_data.get("custom_ref_id")
         invoice.custom_service_period = employee_data.get("custom_service_period")
         invoice.custom_project_name = employee_data.get("custom_project_id")
+        invoice.custom_designation = employee_data.get("designation")
         total_aproximate_hours = timesheet.custom_approx_total_regular_hours_amount + timesheet.custom_total_unpaid_deduction
         custom_type = "Hour"
 
