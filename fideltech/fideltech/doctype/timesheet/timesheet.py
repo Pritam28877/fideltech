@@ -88,7 +88,7 @@ def create_invoice_for_timesheet(timesheet):
         invoice.custom_total1 = round(timesheet.custom_total_bill_amount, 2)
         invoice.custom_grand_total_1 = round(timesheet.custom_total_bill_amount + tax_amount)
 
-        total_amount_words = timesheet.custom_total_bill_amount + tax_amount
+        total_amount_words = round(timesheet.custom_total_bill_amount + tax_amount)
         invoice.custom_employname = timesheet.employee_name
         invoice.custom_employid = timesheet.employee
 
