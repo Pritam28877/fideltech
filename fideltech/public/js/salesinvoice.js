@@ -1,7 +1,7 @@
 frappe.ui.form.on('Sales Invoice', {
     posting_date: function(frm) {
         if (frm.doc.posting_date) {
-            // Parse the posting_date and calculate the due_date
+            // Parse the posting_date
             let posting_date = frappe.datetime.str_to_obj(frm.doc.posting_date);
 
             // Add 30 days to the posting_date
@@ -11,7 +11,11 @@ frappe.ui.form.on('Sales Invoice', {
             due_date = frappe.datetime.obj_to_str(due_date);
 
             // Update the due_date field
-            frm.set_value('due_date', due_date);
+            frm.set_value('due_date', due_date).then(() => {
+                console.log("Due Date Updated to:", due_date);
+            }).catch(err => {
+                console.error("Error updating due_date:", err);
+            });
         }
     }
 });

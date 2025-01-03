@@ -44,7 +44,8 @@ app_license = "mit"
 
 # include js in doctype views
 doctype_js = {
-    "Timesheet": "public/js/timesheet_custom.js"
+    "Timesheet": "public/js/timesheet_custom.js",
+    "Sales Invoice" : "public/js/salesinvoice.js"
 }
 override_doctype_class = {
     "Timesheet": "fideltech.overrides.timesheet_override.CustomTimesheet"
