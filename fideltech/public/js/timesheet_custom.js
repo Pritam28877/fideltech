@@ -262,7 +262,7 @@ function performCalculations(frm, holidayDates) {
     let rate = frm.doc.custom_employee_rate_;
     let rate_type = frm.doc.custom_rate_type; // Hourly, Daily, Monthly
     let daily_hours = 8; // Standard working hours in a day
-    let working_days_in_month = 21.5; // Average working days in a month
+    let working_days_in_month = 0; // Average working days in a month
     let holidaypay = 0;
 
     // Process time logs
@@ -298,8 +298,11 @@ function performCalculations(frm, holidayDates) {
 
     // Calculate rates based on type
     let daily_rate = rate;
+    let hourly_rate = 0;
     custom_monthordailyrate = daily_rate;
+    working_days_in_month = total_working_hr / daily_hours;
     if (rate_type === "Monthly") {
+        working_days_in_month = 21.5;
         daily_rate = rate / working_days_in_month; // Calculate daily rate from monthly rate
         custom_monthordailyrate = daily_rate;
     } else if (rate_type === "Hourly") {
@@ -308,11 +311,12 @@ function performCalculations(frm, holidayDates) {
     }
 
     // Calculate hourly rate
-    let hourly_rate = daily_rate / daily_hours;
+    hourly_rate = daily_rate / daily_hours;
 
     // Calculate normal pay
     let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
     normal_pay = worked_days * daily_rate; // Regular pay for worked days
+    console.log("Normal Pay:", normal_pay);
     // Calculate holiday pay
     // holidaypay = (holidaypay /daily_hours) * daily_rate; // Convert holiday hours to pay
     // normal_pay = normal_pay - holidaypay;
