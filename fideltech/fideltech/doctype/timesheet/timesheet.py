@@ -28,7 +28,7 @@ def number_to_words_international(amount):
             decimal_part_in_words = num2words(decimal_part, lang='en', to='cardinal')
             amount_in_words = f"JPY {whole_part_in_words}"
         else:
-            amount_in_words = whole_part_in_words
+            amount_in_words =f"JPY {whole_part_in_words}"
 
         return amount_in_words + " only"
     except Exception as e:
