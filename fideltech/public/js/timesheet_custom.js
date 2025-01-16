@@ -264,6 +264,7 @@ function performCalculations(frm, holidayDates) {
     let daily_hours = 8; // Standard working hours in a day
     let working_days_in_month = 0; // Average working days in a month
     let holidaypay = 0;
+    let paidleavededuction = 0;
 
     // Process time logs
     for (var i = 0; i < tl.length; i++) {
@@ -283,6 +284,10 @@ function performCalculations(frm, holidayDates) {
             // Include holidays as regular working days for pay
             if (holidayDates.includes(formattedDate) && tl[i].custom_regular_hours === 0) {
                 holidaypay += daily_hours;
+            }
+
+            if(tl[i].custom_leave_type === "Paid") {
+                paidleavededuction += tl[i].custom_regular_hours
             }
 
             // Calculate unpaid leave hours only on working days
@@ -342,6 +347,7 @@ function performCalculations(frm, holidayDates) {
         custom_total_overtime_amount_135 ;
 
     // Update fields in the Timesheet
+    total_working_hr = total_working_hr - paidleavededuction ;
     frm.set_value("total_hours", total_working_hr);
     frm.set_value("custom_total_ragular_hours_amount", custom_total_regular_hours);
     frm.set_value("custom_approx_total_regular_hours_amount", normal_pay);
