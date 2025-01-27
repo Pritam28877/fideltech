@@ -129,16 +129,16 @@ def create_invoice_for_timesheet(timesheet):
         custom_type = "Hour"
 
         if timesheet.custom_rate_type == "Monthly":
-            custom_type = "Month"
+            custom_type = "Man Month"
         elif timesheet.custom_rate_type == "Daily":
-            custom_type = "Day"
+            custom_type = "Days"
         elif timesheet.custom_rate_type == "Hourly":
             custom_type = "Hour"
 
 
 
         invoice.append("items", {
-            "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
+            "item_name": timesheet.employee_name +" "+  "(" +employee_data.get("custom_ref_id")+")",   # Employee name as item name
             "qty": qty,                            # Adjusted quantity based on rate type
             "rate": timesheet.custom_employee_rate_,  # Custom rate per hour
             "description": timesheet.employee_name,  # Employee name as description
@@ -149,7 +149,7 @@ def create_invoice_for_timesheet(timesheet):
 
         if overtime_hours_125 > 0:
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +employee_data.get("custom_ref_id") +")",   # Employee name as item name
                 "qty": overtime_hours_125 ,          # Total hours worked
                 "rate": timesheet.custom_overtimerate_125,  # Custom rate per hour
                 "description": "Overtime 1.25" ,  # Employee name as description
@@ -160,7 +160,7 @@ def create_invoice_for_timesheet(timesheet):
 
         if overtime_hours_135 > 0 :
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +employee_data.get("custom_ref_id")+")",   # Employee name as item name
                 "qty": overtime_hours_135 ,          # Total hours worked
                 "rate": timesheet.custom_overtimerate,  # Custom rate per hour
                 "description": "Overtime 1.35",  # Employee name as description
@@ -176,7 +176,7 @@ def create_invoice_for_timesheet(timesheet):
                 unpaid_leave_qty = unpaid_leave_qty / 8  # Convert hours to days
 
             invoice.append("items", {
-                "item_name": timesheet.employee_name +" "+  "(" +timesheet.employee +")",   # Employee name as item name
+                "item_name": timesheet.employee_name +" "+  "(" +employee_data.get("custom_ref_id") +")",   # Employee name as item name
                 "qty": round(unpaid_leave_qty, 2),     # Total unpaid leave converted to days
                 "rate": timesheet.custom_monthordailyrate,  # Custom rate per day
                 "description": "Unpaid Leave",  # Description
