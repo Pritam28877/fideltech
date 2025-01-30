@@ -349,7 +349,7 @@ function performCalculations(frm, holidayDates) {
     // console.log("Total Working Hours:", total_working_hr);
     // console.log("paidleavededuction", paidleavededuction);
     total_working_hr = total_working_hr - paidleavededuction ;
-    frm.set_value("total_hours", total_working_hr);
+    frm.set_value("total_hours", custom_total_regular_hours);
     frm.set_value("custom_total_ragular_hours_amount", custom_total_regular_hours);
     frm.set_value("custom_approx_total_regular_hours_amount", normal_pay);
     frm.set_value("custom_total_overtime_hours_125", custom_total_overtime_hours_125);
