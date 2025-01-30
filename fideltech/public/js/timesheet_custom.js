@@ -14,12 +14,12 @@ frappe.ui.form.on("Timesheet", {
             // Populate time_logs based on weekends and holidays
             populateTimeLogs(frm, start, end);
         } else {
-            console.log("This timesheet is not new.");
+            // console.log("This timesheet is not new.");
         }
     },
     refresh: function(frm) {
         if (frm.is_new()) {
-            console.log("This is a new timesheet");
+            // console.log("This is a new timesheet");
             frm.clear_table("time_logs");
 
             // Set the start and end date for the current month
@@ -32,7 +32,7 @@ frappe.ui.form.on("Timesheet", {
             // Populate time_logs based on weekends and holidays
             populateTimeLogs(frm, start, end);
         } else {
-            console.log("This timesheet is not new.");
+            // console.log("This timesheet is not new.");
         }
     },
 
@@ -67,7 +67,7 @@ function fetchHolidays(holidayList, callback) {
         },
         callback: function(response) {
             if (response.message) {
-                console.log("Holidays found:", response.message);
+                // console.log("Holidays found:", response.message);
                 callback(response.message);  // Pass the holiday dates to the callback
             } else {
                 console.error("No holidays found for the holiday list.");
@@ -219,12 +219,12 @@ var calculate_time_and_amount = function (frm) {
             },
             callback: function(response) {
                 if (response.message) {
-                    console.log("Fetched Holidays:", response.message);
+                    // console.log("Fetched Holidays:", response.message);
                     // Store holidays locally for calculations
                     let holidayDates = response.message;
                     performCalculations(frm, holidayDates); // Call the calculation function with holidays
                 } else {
-                    console.log("No holidays found for the provided holiday list.");
+                    // console.log("No holidays found for the provided holiday list.");
                     performCalculations(frm, []); // Proceed with an empty holiday list
                 }
             },
@@ -234,7 +234,7 @@ var calculate_time_and_amount = function (frm) {
             }
         });
     } else {
-        console.log("No holiday list specified.");
+        // console.log("No holiday list specified.");
         performCalculations(frm, []); // Proceed if no holiday list is specified
     }
 };
@@ -285,9 +285,8 @@ function performCalculations(frm, holidayDates) {
             if (holidayDates.includes(formattedDate) && tl[i].custom_regular_hours === 0) {
                 holidaypay += daily_hours;
             }
-
             if(tl[i].custom_leave_type === "Paid") {
-                paidleavededuction += tl[i].custom_regular_hours
+                paidleavededuction += tl[i].custom_total
             }
 
             // Calculate unpaid leave hours only on working days
@@ -321,7 +320,7 @@ function performCalculations(frm, holidayDates) {
     // Calculate normal pay
     let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
     normal_pay = worked_days * daily_rate; // Regular pay for worked days
-    console.log("Normal Pay:", normal_pay);
+    // console.log("Normal Pay:", normal_pay);
     // Calculate holiday pay
     // holidaypay = (holidaypay /daily_hours) * daily_rate; // Convert holiday hours to pay
     // normal_pay = normal_pay - holidaypay;
@@ -337,16 +336,18 @@ function performCalculations(frm, holidayDates) {
     let custom_total_overtime_amount_135 = custom_total_overtime_hours_135 * hourly_rate * 1.35; // Overtime at 1.35x
 
     // Total bill amount
-    console.log("Total Bill Amount:", normal_pay );
-    console.log("Total 1 Amount:", custom_total_overtime_amount_125 );
-    console.log("Total 2 Amount:", custom_total_overtime_amount_135 );
-    console.log("Total 3 Amount:", holidaypay );
+    // console.log("Total Bill Amount:", normal_pay );
+    // console.log("Total 1 Amount:", custom_total_overtime_amount_125 );
+    // console.log("Total 2 Amount:", custom_total_overtime_amount_135 );
+    // console.log("Total 3 Amount:", holidaypay );
     custom_total_bill_amount =
         normal_pay +
         custom_total_overtime_amount_125 +
         custom_total_overtime_amount_135 ;
 
     // Update fields in the Timesheet
+    // console.log("Total Working Hours:", total_working_hr);
+    // console.log("paidleavededuction", paidleavededuction);
     total_working_hr = total_working_hr - paidleavededuction ;
     frm.set_value("total_hours", total_working_hr);
     frm.set_value("custom_total_ragular_hours_amount", custom_total_regular_hours);
