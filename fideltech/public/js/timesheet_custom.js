@@ -18,6 +18,9 @@ frappe.ui.form.on("Timesheet", {
         }
     },
     refresh: function(frm) {
+        frm.add_custom_button(__('View Timesheet Report'), function() {
+            frappe.set_route('query-report', 'Timesheet Report User');
+        }, __('Reports'));
         if (frm.is_new()) {
             // console.log("This is a new timesheet");
             frm.clear_table("time_logs");
