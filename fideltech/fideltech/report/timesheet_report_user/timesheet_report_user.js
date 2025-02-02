@@ -9,22 +9,22 @@ frappe.query_reports["Timesheet Report User"] = {
             "fieldtype": "Link",
             "options": "Employee",
             "reqd": 0,
-            "default": frappe.session.user ? get_employee_id() : "", // Automatically set employee ID
-            "read_only": frappe.session.user != "Administrator" // Make read-only for non-admin users
+            "default": "", // Do not set by default
+            "read_only": false // Initially not read-only
         },
         {
             "fieldname": "start_date",
             "label": __("Start Date"),
             "fieldtype": "Date",
             "reqd": 0,
-            "default": frappe.datetime.month_start() // Set default to first day of the month
+            "default": frappe.datetime.month_start() // Automatically set to first day of the month
         },
         {
             "fieldname": "end_date",
             "label": __("End Date"),
             "fieldtype": "Date",
             "reqd": 0,
-            "default": frappe.datetime.month_end() // Set default to last day of the month
+            "default": frappe.datetime.month_end() // Automatically set to last day of the month
         },
         {
             "fieldname": "custom_customer_name",
@@ -47,21 +47,26 @@ function get_employee_id() {
                 fieldname: "name"
             },
             callback: function (r) {
-                if (r.message) {
+                if (r.message && r.message.name) {
                     resolve(r.message.name);
                 } else {
-                    resolve("");
+                    resolve(""); // If no Employee ID found, return empty
                 }
             }
         });
     });
 }
 
-// Auto-populate employee field on page load
+// Auto-populate employee field only if user has an Employee ID
 frappe.query_reports["Timesheet Report User"].onload = function (report) {
     get_employee_id().then(employee_id => {
         if (employee_id) {
             frappe.query_report.set_filter_value("employee", employee_id);
+            frappe.query_report.filters_by_name.employee.df.read_only = true; // Make it read-only
+        } else {
+            frappe.query_report.set_filter_value("employee", ""); // Leave empty
+            frappe.query_report.filters_by_name.employee.df.read_only = false; // Keep it editable
         }
+        frappe.query_report.refresh(); // Refresh report UI to apply changes
     });
 };
