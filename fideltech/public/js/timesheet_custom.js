@@ -1,3 +1,4 @@
+
 frappe.ui.form.on("Timesheet", {
     onload: function(frm) {
         if (frm.is_new()) {
@@ -37,6 +38,12 @@ frappe.ui.form.on("Timesheet", {
         } else {
             // console.log("This timesheet is not new.");
         }
+    },
+
+    custom_select_month_timesheet: function(frm) {
+        // When user selects a different month, update time logs
+        frm.clear_table("time_logs");
+        setTimesheetDates(frm);
     },
 
     custom_employee_rate_: function(frm, cdt, cdn) {
@@ -243,6 +250,21 @@ var calculate_time_and_amount = function (frm) {
 };
 
 
+function setTimesheetDates(frm) {
+    console.log("Selected Month:", frm.doc.custom_select_month_timesheet);
+    let selectedDate = frm.doc.custom_select_month_timesheet ? new Date(frm.doc.custom_select_month_timesheet) : new Date();
+    let firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+    let lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+
+    if (frm.doc.custom_holiday_list) {
+        fetchHolidays(frm.doc.custom_holiday_list, function(holidayDates) {
+            populateTimeLogsWithHolidays(frm, firstDay, lastDay, holidayDates);
+        });
+    } else {
+        populateTimeLogs(frm, firstDay, lastDay);
+    }
+}
+
 
 function performCalculations(frm, holidayDates) {
     let tl = frm.doc.time_logs || [];
@@ -390,6 +412,8 @@ function calculateWorkingDays(year, month) {
 }
 
 
+// Function to calculate first and last day based on selected month
+
 
 frappe.listview_settings['Timesheet'] = {
     onload: function(listview) {
@@ -400,6 +424,19 @@ frappe.listview_settings['Timesheet'] = {
                     doctype: 'Timesheet'
                 });
             });
+        }
+    }, 
+    
+    add_fields: ["workflow_state"],  // Add Workflow Status field to the list view
+    get_indicator: function(doc) {
+        if (doc.workflow_state === "Approved") {
+            return ["Approved", "green", "workflow_state,=,Approved"];
+        } else if (doc.workflow_state === "Rejected") {
+            return ["Rejected", "red", "workflow_state,=,Rejected"];
+        } else if (doc.workflow_state === "Pending Approval") {
+            return ["Pending Approval", "orange", "workflow_state,=,Pending Approval"];
+        } else {
+            return ["Draft", "gray", "workflow_state,=,Draft"];
         }
     }
 };
