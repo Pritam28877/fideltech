@@ -2,7 +2,7 @@ import frappe
 import pandas as pd
 from frappe.utils.file_manager import save_file
 from frappe.utils import get_site_path
-
+import os
 def number_to_words_international(amount):
     """
     Convert a number to words in the international format without currency names.
@@ -220,6 +220,7 @@ def get_holidays(holiday_list_name):
 
 @frappe.whitelist()
 def download_blank_timesheet():
+    
     # Define column headers for the blank timesheet
     columns = ["Date", "Day", "Regular Hours", "Overtime 1.25x", "Overtime 1.35x", "Leave Type", "Total Hours"]
 
@@ -233,7 +234,11 @@ def download_blank_timesheet():
     # Save to an Excel file
     df.to_excel(file_path, index=False)
 
-    # Save file in Frappe and return download URL
-    file_doc = save_file(file_name, open(file_path, "rb").read(), "Timesheet", None, is_private=1)
+    # Ensure the file exists before saving it in Frappe
+    if not os.path.exists(file_path):
+        frappe.throw("File could not be created.")
+
+    # Save file in Frappe and attach it to a generic document (System Settings)
+    file_doc = save_file(file_name, open(file_path, "rb").read(), "File", "Blank Timesheet", is_private=1)
     
     return file_doc.file_url  # Return the file URL for downloading
