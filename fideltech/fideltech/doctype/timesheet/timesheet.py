@@ -1,6 +1,7 @@
 import frappe
-from num2words import num2words  # Ensure you install num2words using `pip install num2words`
-from datetime import datetime, timedelta
+import pandas as pd
+from frappe.utils.file_manager import save_file
+from frappe.utils import get_site_path
 
 def number_to_words_international(amount):
     """
@@ -214,3 +215,25 @@ def get_holidays(holiday_list_name):
     holiday_dates = [holiday.holiday_date for holiday in holiday_list.holidays]
 
     return holiday_dates
+
+
+
+@frappe.whitelist()
+def download_blank_timesheet():
+    # Define column headers for the blank timesheet
+    columns = ["Date", "Day", "Regular Hours", "Overtime 1.25x", "Overtime 1.35x", "Leave Type", "Total Hours"]
+
+    # Create an empty DataFrame
+    df = pd.DataFrame(columns=columns)
+
+    # Define file name
+    file_name = "Blank_Timesheet.xlsx"
+    file_path = get_site_path("private", "files", file_name)
+
+    # Save to an Excel file
+    df.to_excel(file_path, index=False)
+
+    # Save file in Frappe and return download URL
+    file_doc = save_file(file_name, open(file_path, "rb").read(), "Timesheet", None, is_private=1)
+    
+    return file_doc.file_url  # Return the file URL for downloading

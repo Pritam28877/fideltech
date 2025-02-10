@@ -22,6 +22,21 @@ frappe.ui.form.on("Timesheet", {
         frm.add_custom_button(__('View Timesheet Report'), function() {
             frappe.set_route('query-report', 'Timesheet Report User');
         }, __('Reports'));
+
+
+        frm.add_custom_button(__('Download Blank Timesheet'), function() {
+            frappe.call({
+                method: "fideltech.fideltech.doctype.timesheet.timesheet.download_blank_timesheet",
+                args: {},
+                callback: function(response) {
+                    if (response.message) {
+                        window.open(response.message);
+                    }
+                }
+            });
+        }, __("Download"));
+
+
         if (frm.is_new()) {
             // console.log("This is a new timesheet");
             frm.clear_table("time_logs");
