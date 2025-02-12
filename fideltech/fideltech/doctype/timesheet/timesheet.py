@@ -89,7 +89,8 @@ def create_invoice_for_timesheet(timesheet):
         invoice.currency = timesheet.currency
         invoice.custom_tax_amount = round(tax_amount, 2)
         invoice.custom_total1 = round(timesheet.custom_total_bill_amount, 2)
-        invoice.custom_grand_total_1 = round(timesheet.custom_total_bill_amount + tax_amount)
+        # grand_total_1_temp = round(timesheet.custom_total_bill_amount + tax_amount)
+        invoice.custom_grand_total_1 = format(timesheet.custom_total_bill_amount + tax_amount, ".2f")
 
         total_amount_words = round(timesheet.custom_total_bill_amount + tax_amount)
         invoice.custom_employname = timesheet.employee_name
