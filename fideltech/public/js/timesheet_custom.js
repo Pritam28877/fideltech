@@ -213,6 +213,11 @@ function isWeekend(date) {
 
 frappe.ui.form.on("Timesheet Detail", {
     custom_regular_hours: function (frm, cdt, cdn) {
+        let child = locals[cdt][cdn];
+        if (child.custom_regular_hours > 8) {
+            frappe.msgprint(__('Regular hours can be max. 8'), __('Validation'));
+            frappe.model.set_value(cdt, cdn, "custom_regular_hours", 8);
+        }
         calculate_hours(frm, cdt, cdn);
     },
     custom_overtime_hours_125: function (frm, cdt, cdn) {
