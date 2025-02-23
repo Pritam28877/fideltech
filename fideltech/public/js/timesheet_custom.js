@@ -16,12 +16,17 @@ frappe.ui.form.on("Timesheet", {
         } else {
             // console.log("This timesheet is not new.");
         }
+
+        // Hide overtime columns for Contractors
+        if (frappe.user.has_role("employee")) {
+            frm.toggle_display("custom_overtime_hours_125", false);
+            frm.toggle_display("custom_overtime_hours_135", false);
+        }
     },
     refresh: function(frm) {
         frm.add_custom_button(__('View Timesheet Report'), function() {
             frappe.set_route('query-report', 'Timesheet Report User');
         }, __('Reports'));
-
 
         frm.add_custom_button(__('Download Blank Timesheet'), function() {
             frappe.call({
@@ -35,9 +40,7 @@ frappe.ui.form.on("Timesheet", {
             });
         }, __("Download"));
 
-
         if (frm.is_new()) {
-            // console.log("This is a new timesheet");
             frm.clear_table("time_logs");
 
             // Set the start and end date for the current month
@@ -51,6 +54,12 @@ frappe.ui.form.on("Timesheet", {
             populateTimeLogs(frm, start, end);
         } else {
             // console.log("This timesheet is not new.");
+        }
+
+        // Hide overtime columns for Contractors
+        if (frappe.user.has_role("employee")) {
+            frm.toggle_display("custom_overtime_hours_125", false);
+            frm.toggle_display("custom_overtime_hours_135", false);
         }
     },
 
