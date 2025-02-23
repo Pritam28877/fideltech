@@ -1,4 +1,3 @@
-
 frappe.ui.form.on("Timesheet", {
     onload: function(frm) {
         if (frm.is_new()) {
@@ -111,19 +110,36 @@ const japaneseDaysMap = new Map([
     [6, "土曜日"]   // Saturday
 ]);
 
-function getJapaneseDayName(date) {
-    return japaneseDaysMap.get(date.getDay()); // Get the day name in Japanese using the Map
+const englishDaysMap = new Map([
+    [0, "Sunday"],
+    [1, "Monday"],
+    [2, "Tuesday"],
+    [3, "Wednesday"],
+    [4, "Thursday"],
+    [5, "Friday"],
+    [6, "Saturday"]
+]);
+
+function getDayName(date) {
+    const language = frappe.boot.user.language; // Get the current language setting
+    console.log("Language:", language);
+    const dayIndex = date.getDay();
+    if (language === "ja") {
+        return japaneseDaysMap.get(dayIndex); // Return Japanese day name if language is Japanese
+    } else {
+        return englishDaysMap.get(dayIndex); // Return English day name otherwise
+    }
 }
 
 // Function to populate time logs with weekends and holidays
 function populateTimeLogs(frm, start, end) {
     while (start <= end) {
-        let dayName = getJapaneseDayName(start); // Get the day name in Japanese
+        let dayName = getDayName(start); // Get the day name based on the current language
         let hours = isWeekend(start) ? 0.00 : 8.00;
 
         frm.add_child("time_logs", {
             "custom_date": formatDate(start),  // Use Japanese format for date
-            "custom_day": dayName,                     // Use Japanese day name
+            "custom_day": dayName,             // Use day name based on the current language
             "custom_regular_hours": hours,  
             "custom_overtime_hours_125": 0.00,  
             "custom_overtime_hours_135": 0.00,  
@@ -139,12 +155,10 @@ function populateTimeLogs(frm, start, end) {
     calculate_time_and_amount(frm);
 }
 
-
-
 // Function to populate time logs with holiday consideration
 function populateTimeLogsWithHolidays(frm, start, end, holidayDates) {
     while (start <= end) {
-        let dayName = getJapaneseDayName(start); // Get the day name in Japanese
+        let dayName = getDayName(start); // Get the day name based on the current language
         let formattedDate = formatDate(start);
         
         // Set hours based on weekend or holiday

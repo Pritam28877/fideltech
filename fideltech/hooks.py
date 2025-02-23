@@ -69,7 +69,8 @@ fixtures = [
     {"dt": "Workflow",},
     {"dt": "Workflow State",},
     {"dt": "Workflow Action Master"},
-    {"dt": "Print Format"},
+    # {"dt": "Print Format"},
+    {"dt": "Translation"}
     # {"dt": "Role", "filters": [["name", "in", ["Team Member", "Team Manager"]]]},
     # {"dt": "Custom DocPerm", "filters": [["parent", "in", ["Task"]]]},
     # {"dt": "Dashboard", "filters": [["name", "in", ["Team Tasks Overview"]]]},
