@@ -130,7 +130,7 @@ const englishDaysMap = new Map([
 ]);
 
 function getDayName(date) {
-    const language = frappe.boot.user.language; // Get the current language setting
+    const language = frappe.boot.lang; // Get the current language setting
     console.log("Language:", language);
     const dayIndex = date.getDay();
     if (language === "ja") {
