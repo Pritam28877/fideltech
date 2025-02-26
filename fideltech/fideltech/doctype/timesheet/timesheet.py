@@ -5,6 +5,9 @@ import pandas as pd
 from frappe.utils.file_manager import save_file
 from frappe.utils import get_site_path
 import os
+from frappe.utils.xlsxutils import read_xlsx_file_from_attached_file
+from frappe.utils.file_manager import get_file_path, get_files_path
+
 def number_to_words_international(amount):
     """
     Convert a number to words in the international format without currency names.
@@ -245,3 +248,34 @@ def download_blank_timesheet():
     file_doc = save_file(file_name, open(file_path, "rb").read(), "File", "Blank Timesheet", is_private=1)
     
     return file_doc.file_url  # Return the file URL for downloading
+
+
+@frappe.whitelist()
+def import_excel_to_timesheet(file_url):
+    print("Running import_excel_to_timesheet...")
+
+    # ✅ Get the correct file path
+    file_path = frappe.db.get_value("File", {"file_url": file_url}, "file_name")
+    if not file_path:
+        frappe.throw(f"File not found: {file_url}")
+
+    file_path = get_files_path(file_path)  # Convert to absolute path
+
+    # ✅ Read Excel data
+    df = pd.read_excel(file_path)
+    if df.empty:
+        frappe.throw("The uploaded Excel file is empty!")
+
+    # ✅ Convert DataFrame to list of dicts
+    time_logs = []
+    for row in df.to_dict(orient="records"):
+        time_logs.append({
+            "custom_date": row.get("Date"),
+            "custom_regular_hours": row.get("Regular Hours"),
+            "custom_overtime_125": row.get("Overtime 1.25x"),
+            "custom_overtime_135": row.get("Overtime 1.35x"),
+            "custom_leave_type": row.get("Leave Type"),
+            "custom_total_hours": row.get("Total Hours"),
+        })
+
+    return time_logs  # ✅ Send to JavaScript

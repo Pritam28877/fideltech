@@ -61,6 +61,67 @@ frappe.ui.form.on("Timesheet", {
             frm.toggle_display("custom_overtime_hours_125", false);
             frm.toggle_display("custom_overtime_hours_135", false);
         }
+
+        // Hide both file fields by default
+        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment'], false);
+        
+        // Show relevant fields based on selection
+        if (frm.doc.custom_upload_type) {
+            frm.toggle_display(frm.doc.custom_upload_type === 'PDF' ? 'custom_pdf_attachment' : 'custom_excel_attachment', true);
+        }
+        
+        // Toggle child table visibility
+        frm.toggle_display('time_logs', frm.doc.custom_upload_type !== 'PDF');
+    },
+    
+    custom_upload_type(frm) {
+        // Reset attachments when type changes
+        frm.set_value('custom_pdf_attachment', '');
+        frm.set_value('custom_excel_attachment', '');
+        
+        // Show/hide fields and table
+        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment'], false);
+        frm.toggle_display(frm.doc.custom_upload_type === 'PDF' ? 'custom_pdf_attachment' : 'custom_excel_attachment', true);
+        frm.toggle_display('time_logs', frm.doc.custom_upload_type !== 'PDF');
+        
+        // Clear child table if switching to PDF
+        if (frm.doc.custom_upload_type === 'PDF') {
+            frm.clear_table('time_logs');
+            frm.refresh_field('time_logs');
+        }
+    },
+
+    custom_excel_attachment: function(frm) {
+        if (frm.doc.custom_upload_type === 'Excel' && frm.doc.custom_excel_attachment) {
+            console.log("Uploading Excel file to Timesheet");
+
+            // ✅ Clear existing time_logs
+            frm.clear_table('time_logs');
+            frm.refresh_field('time_logs');
+
+            frappe.call({
+                method: "fideltech.fideltech.doctype.timesheet.timesheet.import_excel_to_timesheet",
+                args: {
+                    "timesheet_name": frm.doc.name,
+                    "file_url": frm.doc.custom_excel_attachment
+                },
+                callback: function(response) {
+                    if (response.message) {
+                        console.log("Excel file uploaded successfully", response.message);
+
+                        // ✅ Add new time_logs data
+                        response.message.forEach(log => {
+                            let new_row = frm.add_child("time_logs");
+                            new_row.custom_date = log.custom_date;
+                            new_row.custom_regular_hours = log.custom_regular_hours;
+                        });
+
+                        // ✅ Refresh UI to display new rows
+                        frm.refresh_field("time_logs");
+                    }
+                }
+            });
+        }
     },
 
     custom_select_month_timesheet: function(frm) {
@@ -100,7 +161,6 @@ function fetchHolidays(holidayList, callback) {
         },
         callback: function(response) {
             if (response.message) {
-                // console.log("Holidays found:", response.message);
                 callback(response.message);  // Pass the holiday dates to the callback
             } else {
                 console.error("No holidays found for the holiday list.");
