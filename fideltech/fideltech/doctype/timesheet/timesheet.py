@@ -271,11 +271,11 @@ def import_excel_to_timesheet(file_url):
     for row in df.to_dict(orient="records"):
         time_logs.append({
             "custom_date": row.get("Date"),
-            "custom_regular_hours": row.get("Regular Hours"),
-            "custom_overtime_125": row.get("Overtime 1.25x"),
-            "custom_overtime_135": row.get("Overtime 1.35x"),
-            "custom_leave_type": row.get("Leave Type"),
-            "custom_total_hours": row.get("Total Hours"),
+            "custom_regular_hours": row.get("Regular Hours") or 0,
+            "custom_overtime_125": row.get("Overtime 1.25x") or 0,
+            "custom_overtime_135": row.get("Overtime 1.35x") or 0,
+            "custom_leave_type": row.get("Leave Type") if not pd.isna(row.get("Leave Type")) else "",
+            "custom_total_hours": row.get("Total Hours") if not pd.isna(row.get("Total Hours")) else 0,
         })
 
     return time_logs  # ✅ Send to JavaScript
