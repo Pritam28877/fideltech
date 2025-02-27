@@ -206,7 +206,7 @@ const englishDaysMap = new Map([
 
 function getDayName(date) {
     const language = frappe.boot.lang; // Get the current language setting
-    console.log("Language:", language);
+    console.log("Current Language:", language);
     const dayIndex = date.getDay();
     if (language === "ja") {
         return japaneseDaysMap.get(dayIndex); // Return Japanese day name if language is Japanese
@@ -219,6 +219,7 @@ function getDayName(date) {
 function populateTimeLogs(frm, start, end) {
     while (start <= end) {
         let dayName = getDayName(start); // Get the day name based on the current language
+        console.log("Day Name:", dayName);
         let hours = isWeekend(start) ? 0.00 : 8.00;
 
         frm.add_child("time_logs", {
@@ -274,10 +275,10 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;  
 }
 
-// Function to get the day of the week for a date
-function getDayName(date) {
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
-}
+// // Function to get the day of the week for a date
+// function getDayName(date) {
+//     return date.toLocaleDateString('en-US', { weekday: 'long' });
+// }
 
 // Function to check if the date is a weekend (Saturday or Sunday)
 function isWeekend(date) {
