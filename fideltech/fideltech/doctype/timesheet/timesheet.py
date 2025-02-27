@@ -254,12 +254,11 @@ def download_blank_timesheet():
 def import_excel_to_timesheet(file_url):
     print("Running import_excel_to_timesheet...")
 
-    # ✅ Get the correct file path
-    file_path = frappe.db.get_value("File", {"file_url": file_url}, "file_name")
-    if not file_path:
+    # ✅ Get the file document
+    file_doc = frappe.get_doc("File", {"file_url": file_url})
+    file_path = file_doc.get_full_path()
+    if not file_path or not os.path.exists(file_path):
         frappe.throw(f"File not found: {file_url}")
-
-    file_path = get_files_path(file_path)  # Convert to absolute path
 
     # ✅ Read Excel data
     df = pd.read_excel(file_path)
@@ -271,9 +270,9 @@ def import_excel_to_timesheet(file_url):
     for row in df.to_dict(orient="records"):
         time_logs.append({
             "custom_date": row.get("Date"),
-            "custom_regular_hours": row.get("Regular Hours") or 0,
-            "custom_overtime_125": row.get("Overtime 1.25x") or 0,
-            "custom_overtime_135": row.get("Overtime 1.35x") or 0,
+            "custom_regular_hours": row.get("Regular Hours") if not pd.isna(row.get("Regular Hours")) else 0,
+            "custom_overtime_125": row.get("Overtime 1.25x") if not pd.isna(row.get("Overtime 1.25x")) else 0,
+            "custom_overtime_135": row.get("Overtime 1.35x") if not pd.isna(row.get("Overtime 1.35x")) else 0,
             "custom_leave_type": row.get("Leave Type") if not pd.isna(row.get("Leave Type")) else "",
             "custom_total_hours": row.get("Total Hours") if not pd.isna(row.get("Total Hours")) else 0,
         })

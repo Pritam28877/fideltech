@@ -94,6 +94,7 @@ frappe.ui.form.on("Timesheet", {
     custom_excel_attachment: function(frm) {
         if (frm.doc.custom_upload_type === 'Excel' && frm.doc.custom_excel_attachment) {
             console.log("Uploading Excel file to Timesheet");
+            console.log("File URL:", frm.doc.custom_excel_attachment);
 
             // ✅ Clear existing time_logs
             frm.clear_table('time_logs');
@@ -102,7 +103,6 @@ frappe.ui.form.on("Timesheet", {
             frappe.call({
                 method: "fideltech.fideltech.doctype.timesheet.timesheet.import_excel_to_timesheet",
                 args: {
-                    "timesheet_name": frm.doc.name,
                     "file_url": frm.doc.custom_excel_attachment
                 },
                 callback: function(response) {
