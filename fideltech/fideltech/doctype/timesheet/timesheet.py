@@ -228,7 +228,7 @@ def get_holidays(holiday_list_name):
 def download_blank_timesheet():
     
     # Define column headers for the blank timesheet
-    columns = ["Date", "Day", "Regular Hours", "Overtime 1.25x", "Overtime 1.35x", "Leave Type", "Total Hours"]
+    columns = ["Date", "Day", "Regular Hours", "OverTime", "Leave Type", "Total Hours"]
 
     # Create an empty DataFrame
     df = pd.DataFrame(columns=columns)
