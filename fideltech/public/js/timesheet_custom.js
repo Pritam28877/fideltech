@@ -61,18 +61,20 @@ frappe.ui.form.on("Timesheet", {
             frm.toggle_display("custom_overtime_hours_125", false);
             frm.toggle_display("custom_overtime_hours_135", false);
         }
-
         // Hide both file fields by default
-        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment'], false);
-        
+        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment', 'custom_download_template'], false);
+                
         // Show relevant fields based on selection
         if (frm.doc.custom_upload_type) {
             frm.toggle_display(frm.doc.custom_upload_type === 'PDF' ? 'custom_pdf_attachment' : 'custom_excel_attachment', true);
+            frm.toggle_display('custom_download_template', frm.doc.custom_upload_type === 'Excel');
+            frm.toggle_display('custom_excel_attachment', frm.doc.custom_upload_type === 'Excel');
         }
         
         // Toggle child table visibility
         frm.toggle_display('time_logs', frm.doc.custom_upload_type !== 'PDF');
-    },
+
+},
     
     custom_upload_type(frm) {
         // Reset attachments when type changes
@@ -80,8 +82,10 @@ frappe.ui.form.on("Timesheet", {
         frm.set_value('custom_excel_attachment', '');
         
         // Show/hide fields and table
-        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment'], false);
+        frm.toggle_display(['custom_pdf_attachment', 'custom_excel_attachment', 'custom_download_template'], false);
         frm.toggle_display(frm.doc.custom_upload_type === 'PDF' ? 'custom_pdf_attachment' : 'custom_excel_attachment', true);
+        frm.toggle_display('custom_download_template', frm.doc.custom_upload_type === 'Excel');
+        frm.toggle_display('custom_excel_attachment', frm.doc.custom_upload_type === 'Excel');
         frm.toggle_display('time_logs', frm.doc.custom_upload_type !== 'PDF');
         
         // Clear child table if switching to PDF
@@ -89,6 +93,17 @@ frappe.ui.form.on("Timesheet", {
             frm.clear_table('time_logs');
             frm.refresh_field('time_logs');
         }
+    },
+    custom_download_template(){
+        frappe.call({
+            method: "fideltech.fideltech.doctype.timesheet.timesheet.download_blank_timesheet",
+            args: {},
+            callback: function(response) {
+                if (response.message) {
+                    window.open(response.message);
+                }
+            }
+        });
     },
 
     custom_excel_attachment: function(frm) {
