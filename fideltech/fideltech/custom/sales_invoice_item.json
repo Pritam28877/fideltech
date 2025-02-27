@@ -109,7 +109,7 @@
    "name": "Sales Invoice Item-custom_type",
    "no_copy": 0,
    "non_negative": 0,
-   "options": "\nHourly\nDaily\nMonthly",
+   "options": "\nHour\nDays\nMan Month",
    "owner": "Administrator",
    "permlevel": 0,
    "placeholder": null,
