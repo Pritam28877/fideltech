@@ -1,7 +1,7 @@
 frappe.ui.form.on("Timesheet", {
     onload: function(frm) {
         if (frm.is_new()) {
-            console.log("This is a new timesheet");
+            // console.log("This is a new timesheet");
             frm.clear_table("time_logs");
 
             // Set the start and end date for the current month
@@ -108,8 +108,6 @@ frappe.ui.form.on("Timesheet", {
 
     custom_excel_attachment: function(frm) {
         if (frm.doc.custom_upload_type === 'Excel' && frm.doc.custom_excel_attachment) {
-            console.log("Uploading Excel file to Timesheet");
-            console.log("File URL:", frm.doc.custom_excel_attachment);
 
             // ✅ Clear existing time_logs
             frm.clear_table('time_logs');
@@ -122,7 +120,7 @@ frappe.ui.form.on("Timesheet", {
                 },
                 callback: function(response) {
                     if (response.message) {
-                        console.log("Excel file uploaded successfully", response.message);
+                        // console.log("Excel file uploaded successfully", response.message);
 
                         // ✅ Add new time_logs data
                         response.message.forEach(log => {
@@ -206,7 +204,6 @@ const englishDaysMap = new Map([
 
 function getDayName(date) {
     const language = frappe.boot.lang; // Get the current language setting
-    console.log("Current Language:", language);
     const dayIndex = date.getDay();
     if (language === "ja") {
         return japaneseDaysMap.get(dayIndex); // Return Japanese day name if language is Japanese
@@ -219,7 +216,6 @@ function getDayName(date) {
 function populateTimeLogs(frm, start, end) {
     while (start <= end) {
         let dayName = getDayName(start); // Get the day name based on the current language
-        console.log("Day Name:", dayName);
         let hours = isWeekend(start) ? 0.00 : 8.00;
 
         frm.add_child("time_logs", {
@@ -358,7 +354,7 @@ var calculate_time_and_amount = function (frm) {
                 }
             },
             error: function(error) {
-                console.error("Error fetching holidays:", error);
+                // console.error("Error fetching holidays:", error);
                 performCalculations(frm, []); // Proceed with an empty holiday list in case of errors
             }
         });
@@ -370,7 +366,7 @@ var calculate_time_and_amount = function (frm) {
 
 
 function setTimesheetDates(frm) {
-    console.log("Selected Month:", frm.doc.custom_select_month_timesheet);
+    // console.log("Selected Month:", frm.doc.custom_select_month_timesheet);
     let selectedDate = frm.doc.custom_select_month_timesheet ? new Date(frm.doc.custom_select_month_timesheet) : new Date();
     let firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
     let lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
@@ -383,7 +379,6 @@ function setTimesheetDates(frm) {
         populateTimeLogs(frm, firstDay, lastDay);
     }
 }
-
 
 function performCalculations(frm, holidayDates) {
     let tl = frm.doc.time_logs || [];
@@ -440,6 +435,9 @@ function performCalculations(frm, holidayDates) {
                 tl[i].custom_regular_hours < daily_hours
             ) {
                 custom_total_unpaid_leave_hours += daily_hours - tl[i].custom_regular_hours;
+                if (tl[i].custom_regular_hours <=4) {
+                    custom_total_unpaid_leave_days+=0.5;
+                }
             }
         }
     }
@@ -454,12 +452,14 @@ function performCalculations(frm, holidayDates) {
         daily_rate = rate / working_days_in_month; // Calculate daily rate from monthly rate
         custom_monthordailyrate = daily_rate;
     } else if (rate_type === "Hourly") {
-        daily_rate = rate * daily_hours; // Convert hourly rate to daily rate
+        daily_normal_payrate = rate * daily_hours; // Convert hourly rate to daily rate
         custom_monthordailyrate = rate;
     }
 
     // Calculate hourly rate
     hourly_rate = daily_rate / daily_hours;
+
+    // console.log(custom_total_unpaid_leave_days,"custom_total_unpaid_leave_days")
 
     // Calculate normal pay
     let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
