@@ -231,7 +231,7 @@ function populateTimeLogs(frm, start, end) {
 
         start.setDate(start.getDate() + 1);
     }
-
+//console.log("time_logs",frm.doc.time_logs)
     frm.refresh_field("time_logs");
     calculate_time_and_amount(frm);
 }
