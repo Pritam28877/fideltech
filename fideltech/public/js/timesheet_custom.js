@@ -231,7 +231,6 @@ function populateTimeLogs(frm, start, end) {
 
         start.setDate(start.getDate() + 1);
     }
-//console.log("time_logs",frm.doc.time_logs)
     frm.refresh_field("time_logs");
     calculate_time_and_amount(frm);
 }
@@ -271,12 +270,6 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;  
 }
 
-// // Function to get the day of the week for a date
-// function getDayName(date) {
-//     return date.toLocaleDateString('en-US', { weekday: 'long' });
-// }
-
-// Function to check if the date is a weekend (Saturday or Sunday)
 function isWeekend(date) {
     let day = date.getDay();  // 0 = Sunday, 6 = Saturday
     return day === 0 || day === 6;  // Returns true if the day is Sunday (0) or Saturday (6)
@@ -344,17 +337,13 @@ var calculate_time_and_amount = function (frm) {
             },
             callback: function(response) {
                 if (response.message) {
-                    // console.log("Fetched Holidays:", response.message);
-                    // Store holidays locally for calculations
                     let holidayDates = response.message;
                     performCalculations(frm, holidayDates); // Call the calculation function with holidays
                 } else {
-                    // console.log("No holidays found for the provided holiday list.");
                     performCalculations(frm, []); // Proceed with an empty holiday list
                 }
             },
             error: function(error) {
-                // console.error("Error fetching holidays:", error);
                 performCalculations(frm, []); // Proceed with an empty holiday list in case of errors
             }
         });
@@ -390,8 +379,6 @@ function performCalculations(frm, holidayDates) {
     let custom_total_sick_hours_pay = 0;
     let custom_total_unpaid_leave_days = 0;
     let custom_total_unpaid_leave_hours = 0;
-    let ifmonthordailyrate = 0;
-    let custom_overtimerate = 0;
 
     let normal_pay = 0;
     let unpaid_deduction = 0;
@@ -459,17 +446,10 @@ function performCalculations(frm, holidayDates) {
     // Calculate hourly rate
     hourly_rate = daily_rate / daily_hours;
 
-    // console.log(custom_total_unpaid_leave_days,"custom_total_unpaid_leave_days")
-
     // Calculate normal pay
     let worked_days = working_days_in_month - custom_total_unpaid_leave_days; // Total worked days
     normal_pay = worked_days * daily_rate; // Regular pay for worked days
-    // console.log("Normal Pay:", normal_pay);
-    // Calculate holiday pay
-    // holidaypay = (holidaypay /daily_hours) * daily_rate; // Convert holiday hours to pay
-    // normal_pay = normal_pay - holidaypay;
 
-    // Calculate sick hours pay
     custom_total_sick_hours_pay = (custom_total_sick_hours / daily_hours) * daily_rate; // Sick hours converted to pay
 
     // Calculate unpaid leave deduction
@@ -479,19 +459,12 @@ function performCalculations(frm, holidayDates) {
     let custom_total_overtime_amount_125 = custom_total_overtime_hours_125 * hourly_rate * 1.25; // Overtime at 1.25x
     let custom_total_overtime_amount_135 = custom_total_overtime_hours_135 * hourly_rate * 1.35; // Overtime at 1.35x
 
-    // Total bill amount
-    // console.log("Total Bill Amount:", normal_pay );
-    // console.log("Total 1 Amount:", custom_total_overtime_amount_125 );
-    // console.log("Total 2 Amount:", custom_total_overtime_amount_135 );
-    // console.log("Total 3 Amount:", holidaypay );
     custom_total_bill_amount =
         normal_pay +
         custom_total_overtime_amount_125 +
         custom_total_overtime_amount_135 ;
 
-    // Update fields in the Timesheet
-    // console.log("Total Working Hours:", total_working_hr);
-    // console.log("paidleavededuction", paidleavededuction);
+
     total_working_hr = total_working_hr - paidleavededuction ;
     frm.set_value("total_hours", custom_total_regular_hours);
     frm.set_value("custom_total_ragular_hours_amount", custom_total_regular_hours);
@@ -501,7 +474,6 @@ function performCalculations(frm, holidayDates) {
     frm.set_value("custom_total_overtime_amount_125", custom_total_overtime_amount_125);
     frm.set_value("custom_total_overtime_amount_135", custom_total_overtime_amount_135);
     frm.set_value("custom_total_unpaid_leave_hours", custom_total_unpaid_leave_hours);
-    // frm.set_value("custom_monthordailyrate", ifmonthordailyrate);
     frm.set_value("custom_total_sick_amount1", custom_total_sick_hours_pay);
     frm.set_value("custom_total_sick_hours", custom_total_sick_hours);
     frm.set_value("custom_total_unpaid_deduction", unpaid_deduction);
