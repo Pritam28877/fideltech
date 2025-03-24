@@ -8,18 +8,17 @@ import os
 from frappe.utils.xlsxutils import read_xlsx_file_from_attached_file
 from frappe.utils.file_manager import get_file_path, get_files_path
 
-def get_next_month_last_date():
+def get_current_month_last_date():
     """
-    Get the last date of the next month in MM-DD format.
+    Get the last date of the current month in MM-DD format.
 
     Returns:
-        str: The last date of the next month in MM-DD format.
+        str: The last date of the current month in MM-DD format.
     """
     today = datetime.today()
-    next_month = today.replace(day=28) + timedelta(days=4)  # this will never fail
-    last_day_next_month = next_month.replace(day=1) + timedelta(days=32)
-    last_day_next_month = last_day_next_month.replace(day=1) - timedelta(days=1)
-    return last_day_next_month.strftime("%m-%d")
+    first_day_next_month = today.replace(day=1) + timedelta(days=32)
+    last_day_current_month = first_day_next_month.replace(day=1) - timedelta(days=1)
+    return last_day_current_month.strftime("%m-%d")
 def number_to_words_international(amount):
     """
     Convert a number to words in the international format without currency names.
@@ -110,7 +109,7 @@ def create_invoice_for_timesheet(timesheet):
         total_amount_words = round(timesheet.custom_total_bill_amount + tax_amount)
         invoice.custom_employname = timesheet.employee_name
         invoice.custom_employid = timesheet.employee
-        invoice.custom_lastday = get_next_month_last_date()
+        invoice.custom_lastday = get_current_month_last_date()
 
 
         # Use the international format for amount in words
