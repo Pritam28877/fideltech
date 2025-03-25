@@ -8,16 +8,26 @@ import os
 from frappe.utils.xlsxutils import read_xlsx_file_from_attached_file
 from frappe.utils.file_manager import get_file_path, get_files_path
 
-def get_current_month_last_date():
+def get_current_month_last_date(timesheet):
     """
-    Get the last date of the current month in MM-DD format.
+    Get the last date of the month for the first date in the time log array in MM-DD format.
+
+    Args:
+        timesheet (object): The timesheet object containing time logs.
 
     Returns:
-        str: The last date of the current month in MM-DD format.
+        str: The last date of the month for the first date in the time log array in MM-DD format.
     """
-    today = datetime.today()
-    first_day_next_month = today.replace(day=1) + timedelta(days=32)
+    if not timesheet.time_logs:
+        return None
+
+    # Get the first date from the time logs
+    first_date = frappe.db.get_value("Timesheet Detail", timesheet.time_logs[0].name, "custom_date")
+
+    # Calculate the last day of the month for the first date
+    first_day_next_month = first_date.replace(day=1) + timedelta(days=32)
     last_day_current_month = first_day_next_month.replace(day=1) - timedelta(days=1)
+    print(last_day_current_month.strftime("%m-%d") , "---------------------------------------------------------------------------")
     return last_day_current_month.strftime("%m-%d")
 def number_to_words_international(amount):
     """
@@ -83,6 +93,7 @@ def create_invoice_for_timesheet(timesheet):
         ["tax_id",  "custom_tax_no" ,"custom_attn"],
         as_dict=True
         )
+        print(timesheet.time_logs[0] , "---------------------------------------------------------------------------")
         invoice.tax_id = customer_data.get("tax_id")
         invoice.custom_tax_no = customer_data.get("custom_tax_no")
         invoice.custom_attn = customer_data.get("custom_attn")
@@ -109,7 +120,7 @@ def create_invoice_for_timesheet(timesheet):
         total_amount_words = round(timesheet.custom_total_bill_amount + tax_amount)
         invoice.custom_employname = timesheet.employee_name
         invoice.custom_employid = timesheet.employee
-        invoice.custom_lastday = get_current_month_last_date()
+        invoice.custom_lastday = get_current_month_last_date(timesheet)
 
 
         # Use the international format for amount in words
