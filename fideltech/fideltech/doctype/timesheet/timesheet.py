@@ -27,8 +27,7 @@ def get_current_month_last_date(timesheet):
     # Calculate the last day of the month for the first date
     first_day_next_month = first_date.replace(day=1) + timedelta(days=32)
     last_day_current_month = first_day_next_month.replace(day=1) - timedelta(days=1)
-    print(last_day_current_month.strftime("%m-%d") , "---------------------------------------------------------------------------")
-    return last_day_current_month.strftime("%m-%d")
+    return last_day_current_month.strftime("%m%d")
 def number_to_words_international(amount):
     """
     Convert a number to words in the international format without currency names.
